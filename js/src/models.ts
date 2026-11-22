@@ -5,7 +5,7 @@
  */
 
 export type Severity = "error" | "warning" | "info";
-export type SourceKind = "svg" | "html";
+export type SourceKind = "svg" | "html" | "video";
 export type ColorScheme = "light" | "dark";
 /** An axis-aligned box as `[x, y, width, height]`. */
 export type Rect = [number, number, number, number];
@@ -47,7 +47,7 @@ export interface AnimationTiming {
 
 export interface DurationInfo {
   seconds: number;
-  method: "override" | "detected" | "fallback";
+  method: "override" | "detected" | "fallback" | "media";
   /** True if at least one animation repeats forever (or motion is JS-driven). */
   looping: boolean;
   detail: string;
@@ -111,6 +111,101 @@ export interface Report {
   elements: ElementTrack[];
   loop: LoopInfo;
   console_errors: string[];
+  /** Media facts and per-tile metrics (video inputs only). */
+  video: VideoInfo | null;
+  /** The marks drawn onto the sheet, as validated. */
+  marks: Marks | null;
+}
+
+/** An instant at a position, e.g. a click: drawn on the tile nearest to `t`. */
+export interface MarkPoint {
+  t: number;
+  x: number;
+  y: number;
+  label: string | null;
+  /** Free-form, e.g. `click`. */
+  kind: string | null;
+  /** Seconds the point stays relevant (drawn on every tile it overlaps). Default 0. */
+  duration: number;
+}
+
+/** A time range, optionally with a box: a target element, a zoom, a highlight. */
+export interface MarkRegion {
+  x: number | null;
+  y: number | null;
+  w: number | null;
+  h: number | null;
+  start: number;
+  end: number;
+  label: string | null;
+  /** Free-form, e.g. `zoom`. `target` boxes are checked against span boxes. */
+  kind: string | null;
+}
+
+/** A labelled time range, e.g. a caption; the optional box is its screen area. */
+export interface MarkSpan {
+  x: number | null;
+  y: number | null;
+  w: number | null;
+  h: number | null;
+  start: number;
+  end: number;
+  label: string;
+  kind: string | null;
+}
+
+/**
+ * Annotations drawn onto video tiles and the timeline (schema: framesheet/schema/marks.schema.json).
+ * Times are seconds of the media; coordinates are fractions (0-1) of the video frame, or
+ * pixels of `frame` if given.
+ */
+export interface Marks {
+  frame: { width: number; height: number } | null;
+  points: MarkPoint[];
+  regions: MarkRegion[];
+  spans: MarkSpan[];
+}
+
+/** One dense video sample: share of pixels changed since the previous sample. */
+export interface ActivitySample {
+  t: number;
+  changed_ratio: number;
+}
+
+/** Per-tile numbers for videos, so an agent can score without looking. */
+export interface VideoTile {
+  index: number;
+  t: number;
+  /** Presentation time of the decoded frame (`null` if the browser did not say). */
+  media_time: number | null;
+  black: boolean;
+  /** One flat colour that is not black (e.g. a white page before load). */
+  blank: boolean;
+  /** Near-identical to the previous tile (changes < 0.05% of pixels). */
+  duplicate: boolean;
+  /** Mean luma gradient (0-510); compare tiles of one video: drops = blur/upscaling. */
+  sharpness: number;
+  /** Labels of the marks active on this tile. */
+  marks: string[];
+}
+
+/** Media facts and dense-sample metrics of a video or animated image. */
+export interface VideoInfo {
+  container: string;
+  codec: string | null;
+  decoder: "video" | "image-decoder";
+  width: number;
+  height: number;
+  media_duration: number | null;
+  fps: number | null;
+  frame_count: number | null;
+  start: number;
+  end: number;
+  /** Seconds without visible change that count as a static stretch. */
+  static_threshold: number;
+  /** Every sampled time in `[start, end]` (tiles + dense grid), in order. */
+  samples: ActivitySample[];
+  tiles: VideoTile[];
 }
 
 /** PNG bytes of the three images (plus every sampled frame if requested). */

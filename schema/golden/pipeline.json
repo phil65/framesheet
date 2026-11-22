@@ -569,5 +569,7 @@
     "seam_box": null,
     "detail": "last frame -> first frame changes 0.06% of pixels, one normal step changes 0.07%"
   },
-  "console_errors": []
+  "console_errors": [],
+  "video": null,
+  "marks": null
 }

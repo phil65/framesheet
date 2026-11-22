@@ -246,3 +246,39 @@ function outline(
     }
   }
 }
+
+/** A frame is black/blank if this share of pixels has one colour (4 bits per channel). */
+export const UNIFORM_SHARE = 0.995;
+
+/** `[black, blank]`: one colour (4 bits/channel) covers >= 99.5% of the pixels (= video.py). */
+export function frameStats(frame: Frame): [boolean, boolean] {
+  const counts = new Uint32Array(4096);
+  const d = frame.data;
+  const n = frame.width * frame.height;
+  for (let i = 0, p = 0; i < n; i++, p += 4) counts[((d[p] >> 4) << 8) | ((d[p + 1] >> 4) << 4) | (d[p + 2] >> 4)]++;
+  // Python: max((count, (r, g, b))) -> ties go to the larger colour.
+  let best = 0;
+  for (let b = 1; b < 4096; b++) if (counts[b] >= counts[best]) best = b;
+  const uniform = counts[best] / n >= UNIFORM_SHARE;
+  const black = uniform && Math.max(best >> 8, (best >> 4) & 15, best & 15) <= 1;
+  return [black, uniform && !black];
+}
+
+/** Mean absolute luma gradient (`|dx| + |dy|` per pixel, 0-510), Pillow "L" luma. */
+export function sharpness(frame: Frame): number {
+  const { width: w, height: h, data: d } = frame;
+  const luma = new Uint8Array(w * h);
+  for (let i = 0, p = 0; i < luma.length; i++, p += 4) {
+    luma[i] = (d[p] * 19595 + d[p + 1] * 38470 + d[p + 2] * 7471 + 0x8000) >> 16;
+  }
+  let total = 0;
+  for (let y = 0; y < h; y++) {
+    const row = y * w;
+    for (let x = 0; x < w; x++) {
+      const v = luma[row + x];
+      if (x + 1 < w) total += Math.abs(luma[row + x + 1] - v);
+      if (y + 1 < h) total += Math.abs(luma[row + w + x] - v);
+    }
+  }
+  return pyRound(total / (w * h), 3);
+}

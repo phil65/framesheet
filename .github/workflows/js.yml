@@ -60,7 +60,7 @@ jobs:
           uv sync --all-extras --no-group docs
           uv run --no-sync playwright install chromium
           uv run --no-sync python scripts/sync_schema.py --golden --out "$RUNNER_TEMP/golden"
-          git diff --exit-code schema/report.schema.json
+          git diff --exit-code schema/report.schema.json schema/marks.schema.json
 
       - name: Unit + integration tests (vitest, strict parity with Python)
         run: npm test

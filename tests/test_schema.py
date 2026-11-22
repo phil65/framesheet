@@ -13,7 +13,7 @@ import re
 
 import pytest
 
-from framesheet.models import FINDING_CODES, report_schema
+from framesheet.models import FINDING_CODES, marks_schema, report_schema
 from tests.conftest import FIXTURES
 
 
@@ -37,13 +37,21 @@ def test_committed_schema_is_current():
     )
 
 
+def test_committed_marks_schema_is_current():
+    committed = json.loads((ROOT / "schema" / "marks.schema.json").read_text(encoding="utf-8"))
+    assert committed == marks_schema(), (
+        "schema/marks.schema.json is stale: run `uv run python scripts/sync_schema.py`"
+    )
+
+
 def test_every_emitted_code_is_registered():
     found: set[str] = set()
-    for name in ("checks.py", "analysis.py", "core.py"):
+    for name in ("checks.py", "analysis.py", "core.py", "video.py"):
         text = (SRC / name).read_text(encoding="utf-8")
         for pattern in _CODE_PATTERNS:
             found |= set(pattern.findall(text))
     assert found, "no finding codes found in the sources (pattern drift?)"
+    found |= {f"video-{kind}-frames" for kind in ("black", "blank")}  # f-string in video.py
     assert found <= set(FINDING_CODES), found - set(FINDING_CODES)
     assert all(re.fullmatch(r"[a-z]+(-[a-z]+)*", code) for code in FINDING_CODES)
 

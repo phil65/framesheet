@@ -6,7 +6,7 @@ import itertools
 import math
 from pathlib import Path
 import tempfile
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
 from framesheet import analysis, checks, compose, sources, timing
 from framesheet.models import (
@@ -17,6 +17,7 @@ from framesheet.models import (
     Images,
     InspectionResult,
     LoopInfo,
+    Marks,
     Severity,
     as_rect,
 )
@@ -24,6 +25,8 @@ from framesheet.render import Session, Snapshot
 
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from PIL import Image
 
 SEAM_MIN_RATIO = 0.002
@@ -54,7 +57,7 @@ def inspect(
     duration: float | None = None,
     size: tuple[int, int] | None = None,
     scale: float | None = None,
-    at: float = 0.0,
+    at: float | None = None,
     out: str | Path | None = None,
     tile: int | None = None,
     columns: int | None = None,
@@ -62,12 +65,20 @@ def inspect(
     heat_frames: int = 48,
     color_scheme: ColorScheme = "light",
     timeout: float = 30.0,
+    every: float | None = None,
+    times: Sequence[float] | Literal["marks"] | None = None,
+    start: float | None = None,
+    end: float | None = None,
+    marks: str | Path | dict[str, Any] | Marks | None = None,
+    static_stretch: float = 2.0,
+    channel: str | None = None,
 ) -> InspectionResult:
-    """Render an animated SVG/HTML at evenly spaced times and check it.
+    """Render an animated SVG/HTML (or a video) at evenly spaced times and check it.
 
     Args:
-        source: Path to an ``.svg``/``.html`` file, an ``http(s)://`` URL, ``-`` for
-            stdin, or a markup string starting with ``<``.
+        source: Path to an ``.svg``/``.html`` file or a video (``.mp4``, ``.webm``,
+            ``.mov``, ``.mkv``, animated ``.gif``/``.webp``), an ``http(s)://`` URL, ``-``
+            for stdin, or a markup string starting with ``<``.
         frames: Number of contact-sheet tiles (2-100), spread over one cycle.
         duration: Cycle length in seconds; detected from SMIL/CSS/Web Animations if omitted.
         size: Viewport ``(width, height)`` in CSS px (default: SVG size/viewBox, or 1280x720).
@@ -81,6 +92,16 @@ def inspect(
             trail; 0 uses only the contact-sheet frames.
         color_scheme: ``light`` or ``dark`` (``prefers-color-scheme``).
         timeout: Seconds to wait for navigation and page scripts.
+        every: Videos: one tile every this many seconds (instead of ``frames``).
+        times: Videos: explicit tile times (seconds), or ``"marks"`` for each point's
+            ``t`` and each region's/span's midpoint.
+        start: Videos: start of the inspected range (default 0).
+        end: Videos: end of the inspected range (default: the media duration).
+        marks: Videos: marks to draw (path, JSON string, dict or :class:`Marks`).
+        static_stretch: Videos: seconds without visible change reported as
+            ``video-static-stretch``.
+        channel: Browser channel for Playwright (e.g. ``chrome`` for H.264 if the bundled
+            Chromium lacks it).
 
     Returns:
         Paths of the written images plus metrics and findings.
@@ -94,10 +115,45 @@ def inspect(
     out_dir = Path(out) if out else Path(tempfile.mkdtemp(prefix="framesheet-"))
     out_dir.mkdir(parents=True, exist_ok=True)
     src = _resolve(source, out_dir)
+    if src.kind == "video":
+        from framesheet.marks import load_marks
+        from framesheet.video import inspect_video
+
+        if static_stretch <= 0:
+            msg = "static_stretch must be positive"
+            raise ValueError(msg)
+        return inspect_video(
+            src,
+            out_dir=out_dir,
+            frames=frames,
+            duration=duration,
+            size=size,
+            scale=scale,
+            at=at,
+            tile=tile,
+            columns=columns,
+            keep_frames=keep_frames,
+            heat_frames=heat_frames,
+            timeout=timeout,
+            every=every,
+            times=times,
+            start=start,
+            end=end,
+            marks=load_marks(marks) if marks is not None else None,
+            static_stretch=static_stretch,
+            channel=channel,
+        )
+    video_only = {"every": every, "times": times, "start": start, "end": end, "marks": marks}
+    if given := [name for name, value in video_only.items() if value is not None]:
+        msg = f"{', '.join(given)}: only for video inputs"
+        raise ValueError(msg)
+    at = 0.0 if at is None else at
     viewport = size or sources.default_size(src)
     dsf = scale or (1.0 if size else _auto_scale(viewport))
 
-    with Session(src, size=viewport, scale=dsf, color_scheme=color_scheme, timeout=timeout) as s:
+    with Session(
+        src, size=viewport, scale=dsf, color_scheme=color_scheme, timeout=timeout, channel=channel
+    ) as s:
         s.load()
         text = src.text if src.text is not None else s.response_text
         findings = _static_findings(src.kind, text)
@@ -338,3 +394,8 @@ def _write_images(
 
 def _union(a: tuple[int, int, int, int], b: tuple[int, int, int, int]) -> tuple[int, int, int, int]:
     return min(a[0], b[0]), min(a[1], b[1]), max(a[2], b[2]), max(a[3], b[3])
+
+
+auto_scale = _auto_scale
+frame_metrics = _frame_metrics
+motion_findings = _motion_findings

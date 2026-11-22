@@ -200,5 +200,7 @@
     "seam_box": null,
     "detail": "cycle length unknown (JS-driven); pass --duration"
   },
-  "console_errors": []
+  "console_errors": [],
+  "video": null,
+  "marks": null
 }

@@ -5,13 +5,13 @@ from __future__ import annotations
 from functools import cache
 import itertools
 import math
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from PIL import Image, ImageChops, ImageDraw, ImageFont
 
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
     from pathlib import Path
 
     from framesheet.models import Rect
@@ -31,6 +31,13 @@ LABEL_H = 34
 GAP = 12
 PAD = 12
 LABEL_FONT = 22
+MARK_BAND_H = 26
+MARK_BAND_BG = (51, 65, 85)
+MARK_BAND_FG = (253, 230, 138)
+MARK_BAND_FONT = 16
+
+DrawOp = dict[str, Any]
+"""A layout operation: ``{"op": "rect" | "outline" | "text", ...}`` (see :func:`draw_ops`)."""
 
 
 @cache
@@ -114,6 +121,9 @@ def contact_sheet(
     tile: int | None = None,
     columns: int | None = None,
     highlight: Sequence[int] = (),
+    bands: Sequence[str] | None = None,
+    overlay: Callable[[int, tuple[int, int]], Sequence[DrawOp]] | None = None,
+    footer: Callable[[int], tuple[int, Sequence[DrawOp]]] | None = None,
 ) -> Image.Image:
     """Grid of frames, each with a timestamp label band above it.
 
@@ -125,6 +135,12 @@ def contact_sheet(
         tile: Longest side of a tile in pixels (default: as large as fits 1568 px).
         columns: Grid columns (default: roughly 4:3 sheet).
         highlight: Frame indices whose label gets the accent colour (first/last).
+        bands: Optional second label line per frame (active marks), drawn in an extra
+            :data:`MARK_BAND_H` band under the timestamp.
+        overlay: ``(index, thumb size) -> ops`` drawn over each tile image (relative to
+            its top-left).
+        footer: ``(sheet width) -> (height, ops)`` appended below the grid (ops relative
+            to its top-left).
     """
     first = frames[0]
     aspect = first.width / first.height
@@ -133,10 +149,13 @@ def contact_sheet(
     tw, th = (tile, round(tile / aspect)) if aspect >= 1 else (round(tile * aspect), tile)
     rows = math.ceil(len(frames) / cols)
     gap, label_h, pad = GAP, LABEL_H, PAD
-    cell_w, cell_h = tw + 2, th + 2 + label_h
+    band_h = MARK_BAND_H if bands is not None else 0
+    cell_w, cell_h = tw + 2, th + 2 + label_h + band_h
     width = max(pad * 2 + cols * cell_w + (cols - 1) * gap, 560)
     header = _header(width, title, subtitle)
-    height = header.height + pad + rows * cell_h + (rows - 1) * gap + pad
+    grid_h = header.height + pad + rows * cell_h + (rows - 1) * gap + pad
+    foot = footer(width) if footer else None
+    height = grid_h + (foot[0] if foot else 0)
     sheet = Image.new("RGB", (width, height), SHEET_BG)
     sheet.paste(header, (0, 0))
     draw = ImageDraw.Draw(sheet)
@@ -154,10 +173,45 @@ def contact_sheet(
             fill=(203, 213, 225),
             font=font(16),
         )
-        draw.rectangle((x, y + label_h, x + cell_w - 1, y + cell_h - 1), outline=TILE_BORDER)
+        if bands is not None:
+            band_y = y + label_h
+            draw.rectangle((x, band_y, x + cell_w - 1, band_y + band_h - 1), fill=MARK_BAND_BG)
+            draw.text((x + 8, band_y + 4), bands[i], fill=MARK_BAND_FG, font=font(MARK_BAND_FONT))
+        top = y + label_h + band_h
+        draw.rectangle((x, top, x + cell_w - 1, y + cell_h - 1), outline=TILE_BORDER)
         thumb = _fit(frame, tw, th)
-        sheet.paste(thumb, (x + 1 + (tw - thumb.width) // 2, y + label_h + 1))
+        ix = x + 1 + (tw - thumb.width) // 2
+        sheet.paste(thumb, (ix, top + 1))
+        if overlay is not None:
+            draw_ops(draw, overlay(i, thumb.size), ix, top + 1)
+    if foot:
+        draw_ops(draw, foot[1], 0, grid_h)
     return sheet
+
+
+def draw_ops(draw: ImageDraw.ImageDraw, ops: Sequence[DrawOp], dx: int = 0, dy: int = 0) -> None:
+    """Execute layout ops (same format as the npm package's DrawOp), offset by ``dx, dy``.
+
+    ``rect``/``outline`` boxes are inclusive ``(x0, y0, x1, y1)``; ``text`` is anchored at
+    its top-left (``align: right`` = at its top-right).
+    """
+    for op in ops:
+        kind = op["op"]
+        if kind == "rect":
+            x0, y0, x1, y1 = op["box"]
+            draw.rectangle((x0 + dx, y0 + dy, x1 + dx, y1 + dy), fill=tuple(op["fill"]))
+        elif kind == "outline":
+            x0, y0, x1, y1 = op["box"]
+            draw.rectangle(
+                (x0 + dx, y0 + dy, x1 + dx, y1 + dy),
+                outline=tuple(op["color"]),
+                width=op["width"],
+            )
+        elif kind == "text":
+            x = op["x"] + dx
+            if op.get("align") == "right":
+                x -= _text_width(draw, op["text"], op["size"])
+            draw.text((x, op["y"] + dy), op["text"], fill=tuple(op["color"]), font=font(op["size"]))
 
 
 def motion_map(frames: Sequence[Image.Image]) -> Image.Image:
@@ -221,9 +275,65 @@ def heatmap(
         min_side: Small inputs are upscaled until their longest side reaches this.
         boxes: Device-px boxes to outline (e.g. the overall changed region).
     """
-    motion = motion_map(frames)
+    return heatmap_from(
+        frames[0],
+        motion_map(frames),
+        title=title,
+        subtitle=subtitle,
+        max_side=max_side,
+        min_side=min_side,
+        boxes=boxes,
+    )
+
+
+class MotionAccumulator:
+    """Incremental :func:`motion_map` (frames fed in order, not kept in memory)."""
+
+    def __init__(self) -> None:
+        self.first: Image.Image | None = None
+        self.prev: Image.Image | None = None
+        self.acc: Image.Image | None = None
+        self.box: tuple[int, int, int, int] | None = None
+        self.count = 0
+
+    def add(self, frame: Image.Image) -> None:
+        self.count += 1
+        if self.first is None or self.prev is None or self.acc is None:
+            self.first = self.prev = frame
+            self.acc = Image.new("L", frame.size, 0)
+            return
+        step = change_mask(self.prev, frame)
+        self.acc = ImageChops.lighter(self.acc, step)
+        self.acc = ImageChops.lighter(self.acc, change_mask(self.first, frame))
+        box = step.point(lambda v: 255 if v > DIFF_THRESHOLD else 0).getbbox()
+        if box:
+            b = self.box
+            self.box = (
+                box
+                if b is None
+                else (
+                    min(b[0], box[0]),
+                    min(b[1], box[1]),
+                    max(b[2], box[2]),
+                    max(b[3], box[3]),
+                )
+            )
+        self.prev = frame
+
+
+def heatmap_from(
+    first: Image.Image,
+    motion: Image.Image,
+    *,
+    title: str,
+    subtitle: str,
+    max_side: int = 1280,
+    min_side: int = 800,
+    boxes: Sequence[tuple[int, int, int, int]] = (),
+) -> Image.Image:
+    """:func:`heatmap` from a precomputed motion map (``L`` image) and the first frame."""
     # Grey, low-contrast base in a fixed dark range so every overlay colour stands out.
-    base = frames[0].convert("L").point(lambda v: round(28 + v * 0.32)).convert("RGB")
+    base = first.convert("L").point(lambda v: round(28 + v * 0.32)).convert("RGB")
     red, green, blue, alpha = _LUT
     overlay = Image.merge(
         "RGBA",

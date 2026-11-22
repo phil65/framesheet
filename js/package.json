@@ -33,6 +33,7 @@
       "default": "./dist/test.js"
     },
     "./schema/report.schema.json": "./dist/report.schema.json",
+    "./schema/marks.schema.json": "./dist/marks.schema.json",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",

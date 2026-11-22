@@ -5,7 +5,7 @@
 // - Each JS report is compared with the golden Python report of the same fixture
 //   (../schema/golden, or FRAMESHEET_GOLDEN_DIR: CI regenerates them with Python on the
 //   same machine and then compares strictly, number for number).
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { Ajv2020 } from "ajv/dist/2020.js";
 import { describe, expect, it } from "vitest";
@@ -21,6 +21,12 @@ const schema = JSON.parse(readFileSync(SCHEMA_PATH, "utf8"));
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 ajv.addFormat("path", true);
 const validate = ajv.compile(schema);
+
+/** Same convention as sync_schema.py: `<stem>.marks.json` next to a fixture = its marks. */
+const marksFor = (stem: string) => {
+  const path = join(FIXTURES, `${stem}.marks.json`);
+  return existsSync(path) ? { marks: path } : {};
+};
 
 const goldens = readdirSync(GOLDEN_DIR)
   .filter((f) => f.endsWith(".json"))
@@ -68,7 +74,8 @@ describe.each(goldens)("parity with Python: %s", (file) => {
   let report: Report;
 
   it("validates against the shared schema", async () => {
-    const result = await inspect(join(FIXTURES, name), { browser: browser(), ...GOLDEN_OPTIONS });
+    const stem = basename(file, ".json");
+    const result = await inspect(join(FIXTURES, name), { browser: browser(), ...GOLDEN_OPTIONS, ...marksFor(stem) });
     report = result.report;
     expect(validate(report), JSON.stringify(validate.errors, null, 2)).toBe(true);
   });
@@ -108,6 +115,18 @@ describe.each(goldens)("parity with Python: %s", (file) => {
     expect(close(report.loop.seam_ratio, golden.loop.seam_ratio, tol)).toBe(true);
     expect(close(report.loop.step_ratio, golden.loop.step_ratio, tol)).toBe(true);
     if (STRICT) expect(report.loop).toEqual(golden.loop);
+    expect(report.marks).toEqual(golden.marks);
+    expect(report.video === null).toBe(golden.video === null);
+    if (report.video && golden.video) {
+      const { samples, tiles, ...facts } = report.video;
+      const { samples: gSamples, tiles: gTiles, ...gFacts } = golden.video;
+      expect(facts).toEqual(gFacts);
+      expect(samples.map((x) => x.t)).toEqual(gSamples.map((x) => x.t));
+      samples.forEach((x, i) => expect(close(x.changed_ratio, gSamples[i].changed_ratio, tol), `sample ${x.t}`).toBe(true));
+      const exact = (t: (typeof tiles)[number]) => [t.index, t.t, t.media_time, t.black, t.blank, t.duplicate, t.marks];
+      expect(tiles.map(exact)).toEqual(gTiles.map(exact));
+      tiles.forEach((t, i) => expect(close(t.sharpness, gTiles[i].sharpness, STRICT ? 1e-9 : 0.05), `tile ${i}`).toBe(true));
+    }
     expect(report.elements.map((e) => [e.element, e.animated_by, e.units])).toEqual(
       golden.elements.map((e) => [e.element, e.animated_by, e.units]),
     );

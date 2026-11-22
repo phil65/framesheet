@@ -27,6 +27,10 @@ export const LABEL_H = 34;
 export const GAP = 12;
 export const PAD = 12;
 export const LABEL_FONT = 22;
+export const MARK_BAND_H = 26;
+export const MARK_BAND_BG: RGB = [51, 65, 85];
+export const MARK_BAND_FG: RGB = [253, 230, 138];
+export const MARK_BAND_FONT = 16;
 /** Vision models downscale larger images; keep the sheet at or below this width. */
 export const MAX_SHEET_WIDTH = 1568;
 export const MAX_TILE = 480;
@@ -201,13 +205,19 @@ export interface SheetOptions {
   columns?: number;
   /** Frame indices whose label gets the accent colour (first/last). */
   highlight?: number[];
+  /** Optional second label line per frame (active marks), in an extra MARK_BAND_H band. */
+  bands?: string[] | null;
+  /** Ops drawn over each tile image (relative to its top-left), given the thumb size. */
+  overlay?: ((index: number, thumb: [number, number]) => DrawOp[]) | null;
+  /** `(sheet width) -> [height, ops]` appended below the grid (ops relative to its top). */
+  footer?: ((width: number) => [number, DrawOp[]]) | null;
 }
 
 /** Layout of a contact sheet (pure; exported for tests). */
 export function sheetLayout(
   frameSize: [number, number],
   count: number,
-  opts: { tile?: number; columns?: number },
+  opts: { tile?: number; columns?: number; bandH?: number },
 ): { width: number; height: number; cols: number; rows: number; tw: number; th: number } {
   const [fw, fh] = frameSize;
   const aspect = fw / fh;
@@ -216,7 +226,7 @@ export function sheetLayout(
   const [tw, th] = aspect >= 1 ? [tile, pyRound(tile / aspect)] : [pyRound(tile * aspect), tile];
   const rows = Math.ceil(count / cols);
   const cellW = tw + 2;
-  const cellH = th + 2 + LABEL_H;
+  const cellH = th + 2 + LABEL_H + (opts.bandH ?? 0);
   const width = Math.max(PAD * 2 + cols * cellW + (cols - 1) * GAP, MIN_WIDTH);
   const height = HEADER_H + PAD + rows * cellH + (rows - 1) * GAP + PAD;
   return { width, height, cols, rows, tw, th };
@@ -229,9 +239,15 @@ export async function contactSheet(
   labels: string[],
   opts: SheetOptions,
 ): Promise<Buffer> {
-  const { width, height, cols, tw, th } = sheetLayout([frames[0].width, frames[0].height], frames.length, opts);
+  const bands = opts.bands ?? null;
+  const bandH = bands !== null ? MARK_BAND_H : 0;
+  const layout = sheetLayout([frames[0].width, frames[0].height], frames.length, { ...opts, bandH });
+  const { width, cols, tw, th } = layout;
   const cellW = tw + 2;
-  const cellH = th + 2 + LABEL_H;
+  const cellH = th + 2 + LABEL_H + bandH;
+  const foot = opts.footer ? opts.footer(width) : null;
+  const gridH = layout.height;
+  const height = gridH + (foot ? foot[0] : 0);
   const highlight = new Set(opts.highlight ?? []);
   const ops: DrawOp[] = [...headerOps(opts.title, opts.subtitle)];
   frames.forEach((frame, i) => {
@@ -242,10 +258,19 @@ export async function contactSheet(
     ops.push({ op: "rect", box: [x, y, x + cellW - 1, y + LABEL_H - 1], fill: highlight.has(i) ? ACCENT_BG : LABEL_BG });
     ops.push({ op: "text", x: x + 8, y: y + 5, text: labels[i], color: LABEL_FG, size: LABEL_FONT });
     ops.push({ op: "text", x: x + cellW - 8, y: y + 10, text: `#${i + 1}`, color: INDEX_FG, size: 16, align: "right" });
-    ops.push({ op: "outline", box: [x, y + LABEL_H, x + cellW - 1, y + cellH - 1], color: TILE_BORDER, width: 1 });
+    if (bands !== null) {
+      const bandY = y + LABEL_H;
+      ops.push({ op: "rect", box: [x, bandY, x + cellW - 1, bandY + bandH - 1], fill: MARK_BAND_BG });
+      ops.push({ op: "text", x: x + 8, y: bandY + 4, text: bands[i], color: MARK_BAND_FG, size: MARK_BAND_FONT });
+    }
+    const top = y + LABEL_H + bandH;
+    ops.push({ op: "outline", box: [x, top, x + cellW - 1, y + cellH - 1], color: TILE_BORDER, width: 1 });
     const [w, h] = fitSize(frame.width, frame.height, tw, th);
-    ops.push({ op: "image", index: i, x: x + 1 + Math.floor((tw - w) / 2), y: y + LABEL_H + 1, w, h });
+    const ix = x + 1 + Math.floor((tw - w) / 2);
+    ops.push({ op: "image", index: i, x: ix, y: top + 1, w, h });
+    if (opts.overlay) ops.push(...offsetOps(opts.overlay(i, [w, h]), ix, top + 1));
   });
+  if (foot) ops.push(...offsetOps(foot[1], 0, gridH));
   return renderer.draw(
     width,
     height,
@@ -263,6 +288,15 @@ export interface HeatmapOptions {
   minSide?: number;
   /** Device-px boxes to outline (e.g. the overall changed region). */
   boxes?: Box[];
+}
+
+/** Shift layout ops by `dx, dy`. */
+export function offsetOps(ops: DrawOp[], dx: number, dy: number): DrawOp[] {
+  return ops.map((op) => {
+    if (op.op === "text" || op.op === "image") return { ...op, x: op.x + dx, y: op.y + dy };
+    const [x0, y0, x1, y1] = op.box;
+    return { ...op, box: [x0 + dx, y0 + dy, x1 + dx, y1 + dy] };
+  });
 }
 
 /** Coloured motion overlay on a dimmed, desaturated first frame. */

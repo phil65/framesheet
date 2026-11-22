@@ -19,6 +19,7 @@ import type {
   ImageBuffers,
   ImagePaths,
   LoopInfo,
+  Marks,
   Rect,
   Report,
   Severity,
@@ -29,6 +30,8 @@ import { decode, diffStats, type Frame, MotionAccumulator, toCss } from "./pixel
 import { fixed, g, pct, pyRound } from "./pyfmt.js";
 import { defaultSize, resolveSource, type Source, VIRTUAL_ORIGIN } from "./sources.js";
 import { detectDuration, epsilon, parseTimings, sampleTimes } from "./timing.js";
+import { inspectVideo, type TimesSpec } from "./video.js";
+import { loadMarks } from "./marks.js";
 
 /** A seam changing fewer than 0.2% of pixels always counts as seamless. */
 export const SEAM_MIN_RATIO = 0.002;
@@ -101,6 +104,18 @@ export interface InspectOptions extends SampleOptions {
    * server). Default false.
    */
   blockNetwork?: boolean;
+  /** Videos: one tile every this many seconds (instead of `frames`). */
+  every?: number;
+  /** Videos: explicit tile times (s), or `"marks"`: each point's t, each region's/span's midpoint. */
+  times?: TimesSpec;
+  /** Videos: start of the inspected range (s). Default 0. */
+  start?: number;
+  /** Videos: end of the inspected range (s). Default: the media duration. */
+  end?: number;
+  /** Videos: marks to draw (path to marks.json, JSON string or object; see marks.schema.json). */
+  marks?: string | Marks | Record<string, unknown>;
+  /** Videos: seconds without visible change reported as `video-static-stretch`. Default 2. */
+  staticStretch?: number;
 }
 
 export interface InspectPageOptions extends SampleOptions {
@@ -172,6 +187,13 @@ export function summarize(r: Report): string {
     `framesheet: ${r.source} (${r.kind}, ${w}x${h} @${g(r.device_scale_factor)}x)`,
     `duration: ${g(d.seconds)}s ${d.method}: ${d.detail}${d.looping ? " [looping]" : ""}`,
   ];
+  const v = r.video;
+  if (v) {
+    let facts = `${v.container} ${v.codec || "?"} ${v.width}x${v.height}`;
+    if (v.fps) facts += ` ${g(v.fps)}fps`;
+    if (v.frame_count) facts += `, ${v.frame_count} frames`;
+    lines.push(`video: ${facts}; range ${g(v.start)}-${g(v.end)}s, ${v.samples.length} samples`);
+  }
   const busiest = r.frames.reduce((a, b) => (b.changed_ratio > a.changed_ratio ? b : a));
   const motion = busiest.changed_ratio
     ? `max change ${pct(busiest.changed_ratio, 1)} at t=${fixed(busiest.t, 2)}s`
@@ -191,7 +213,7 @@ export function summarize(r: Report): string {
   lines.push(
     "images:",
     `  full     ${r.images.full}  (t=${g(r.full_at)}s: layout, text, margins)`,
-    `  sheet    ${r.images.sheet}  (motion over one cycle)`,
+    `  sheet    ${r.images.sheet}  ${v ? "(tiles over the range + timeline)" : "(motion over one cycle)"}`,
     `  heatmap  ${r.images.heatmap}  (what moves at all)`,
     `  report   ${r.images.report}`,
   );
@@ -257,12 +279,20 @@ function titleOf(label: string): string {
 export async function inspect(source: string, options: InspectOptions = {}): Promise<Inspection> {
   validate(options);
   const src = await resolveSource(source);
+  const videoOnly = (["every", "times", "start", "end", "marks"] as const).filter((k) => options[k] !== undefined);
+  if (src.kind !== "video" && videoOnly.length) throw new RangeError(`${videoOnly.join(", ")}: only for video inputs`);
+  if (options.staticStretch !== undefined && !(options.staticStretch > 0)) throw new RangeError("staticStretch must be positive");
+  const marks = src.kind === "video" && options.marks !== undefined ? loadMarks(options.marks) : null;
   const browser = options.browser ?? (await launch(options.launchOptions));
   const ownsBrowser = !options.browser;
   let renderer: Renderer | null = null;
   let context: BrowserContext | null = null;
   try {
     renderer = await Renderer.open(browser);
+    if (src.kind === "video") {
+      const built = await inspectVideo(src, browser, renderer, { ...options, marks }, autoScale);
+      return new Inspection(built.report, built.images, built.paths);
+    }
     const parsed = src.text ? await parseSource(renderer.page, src.text, src.kind) : null;
     const viewport = options.size ?? defaultSize(src.kind, parsed);
     const dsf = options.scale ?? (options.size ? 1 : autoScale(viewport));
@@ -553,7 +583,7 @@ async function pipeline(p: PipelineInput): Promise<Inspection> {
 
   // Images.
   const span = `${times.length} frames over 0-${g(info.seconds)}s`;
-  const how = { override: "set by --duration", detected: "detected", fallback: "fallback" }[info.method];
+  const how = { override: "set by --duration", detected: "detected", fallback: "fallback", media: "media" }[info.method];
   const looping = info.looping ? "looping" : "not looping";
   const sheet = await contactSheet(
     p.renderer,
@@ -602,6 +632,8 @@ async function pipeline(p: PipelineInput): Promise<Inspection> {
     elements: tracks(geo),
     loop,
     console_errors: consoleErrors,
+    video: null,
+    marks: null,
   };
   if (out) {
     mkdirSync(out, { recursive: true });

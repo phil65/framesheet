@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import re
 import sys
-from typing import Annotated
+from typing import Annotated, Literal
 
 import typer
 
@@ -28,16 +28,35 @@ def _out_for(base: Path | None, source: str, multiple: bool) -> Path | None:
     return base / stem
 
 
+def _parse_times(value: str | None) -> list[float] | Literal["marks"] | None:
+    if value is None:
+        return None
+    if value.strip() == "marks":
+        return "marks"
+    try:
+        return [float(v) for v in value.split(",") if v.strip()]
+    except ValueError:
+        msg = f"Invalid --times {value!r}: expected seconds like 1.2,3.4 or 'marks'"
+        raise typer.BadParameter(msg, param_hint="--times") from None
+
+
 @app.command("inspect")
 def inspect_cmd(
     sources: Annotated[
-        list[str], typer.Argument(help="SVG/HTML files, http(s):// URLs, or - for stdin.")
+        list[str],
+        typer.Argument(
+            help="SVG/HTML files, videos (mp4, webm, mov, mkv, animated gif/webp), "
+            "http(s):// URLs, or - for stdin."
+        ),
     ],
     frames: Annotated[int, typer.Option("--frames", "-n", help="Contact-sheet tiles.")] = 12,
     duration: Annotated[
         float | None, typer.Option(help="Cycle length in seconds (default: detected).")
     ] = None,
-    at: Annotated[float, typer.Option(help="Time (s) of the full-resolution frame.")] = 0.0,
+    at: Annotated[
+        float | None,
+        typer.Option(help="Time (s) of the full-resolution frame (default: 0 / range start)."),
+    ] = None,
     size: Annotated[
         str | None, typer.Option(help="Viewport WxH (default: SVG size or 1280x720).")
     ] = None,
@@ -52,6 +71,27 @@ def inspect_cmd(
     keep_frames: Annotated[bool, typer.Option(help="Also write every frame to frames/.")] = False,
     dark: Annotated[bool, typer.Option(help="Emulate prefers-color-scheme: dark.")] = False,
     as_json: Annotated[bool, typer.Option("--json", help="Print only the JSON report.")] = False,
+    heat_frames: Annotated[
+        int, typer.Option(help="Extra pixel-only samples (heatmap; videos: pacing checks).")
+    ] = 48,
+    every: Annotated[
+        float | None, typer.Option(help="Video: one tile every SECONDS (instead of -n).")
+    ] = None,
+    times: Annotated[
+        str | None,
+        typer.Option(help="Video: tile times, e.g. 1.2,3.4 (or 'marks': from --marks)."),
+    ] = None,
+    start: Annotated[float | None, typer.Option(help="Video: range start (s).")] = None,
+    end: Annotated[float | None, typer.Option(help="Video: range end (s).")] = None,
+    marks: Annotated[
+        Path | None, typer.Option(help="Video: marks.json to draw (points, regions, spans).")
+    ] = None,
+    static_stretch: Annotated[
+        float, typer.Option(help="Video: seconds without change reported as dead time.")
+    ] = 2.0,
+    channel: Annotated[
+        str | None, typer.Option(help="Browser channel, e.g. chrome (H.264 decoding).")
+    ] = None,
 ) -> None:
     """Render inputs at evenly spaced times and check them.
 
@@ -65,6 +105,7 @@ def inspect_cmd(
         viewport = parse_size(size) if size else None
     except ValueError as exc:
         raise typer.BadParameter(str(exc), param_hint="--size") from None
+    tile_times = _parse_times(times)
     results = []
     for source in sources:
         try:
@@ -80,6 +121,14 @@ def inspect_cmd(
                 columns=columns,
                 keep_frames=keep_frames,
                 color_scheme="dark" if dark else "light",
+                heat_frames=heat_frames,
+                every=every,
+                times=tile_times,
+                start=start,
+                end=end,
+                marks=marks,
+                static_stretch=static_stretch,
+                channel=channel,
             )
         except BrowserNotInstalledError as exc:
             typer.echo(f"error: {exc}", err=True)

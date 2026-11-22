@@ -1,0 +1,589 @@
+{
+  "source": "square_gif.gif",
+  "kind": "video",
+  "viewport": [
+    160,
+    90
+  ],
+  "device_scale_factor": 3.0,
+  "canvas": [
+    0.0,
+    0.0,
+    160.0,
+    90.0
+  ],
+  "duration": {
+    "seconds": 6.0,
+    "method": "media",
+    "looping": false,
+    "detail": "media duration 6s",
+    "animations": []
+  },
+  "times": [
+    0.0,
+    0.5455,
+    1.0909,
+    1.6364,
+    2.1818,
+    2.7273,
+    3.2727,
+    3.8182,
+    4.3636,
+    4.9091,
+    5.4545,
+    6.0
+  ],
+  "full_at": 0.0,
+  "images": {
+    "full": "full.png",
+    "sheet": "sheet.png",
+    "heatmap": "heatmap.png",
+    "report": "report.json"
+  },
+  "findings": [
+    {
+      "severity": "warning",
+      "code": "video-static-stretch",
+      "message": "No visible change for 2.38s (t=2.00-4.38s; under 0.05% of pixels per sample): dead time?",
+      "check": "render",
+      "element": null,
+      "times": [
+        2.0,
+        4.375
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "video-black-frames",
+      "message": "3 sampled frame(s) are black: t=4.50s, 4.62s, 4.75s.",
+      "check": "render",
+      "element": null,
+      "times": [
+        4.5,
+        4.625,
+        4.75
+      ]
+    },
+    {
+      "severity": "info",
+      "code": "video-abrupt-cut",
+      "message": "Abrupt change (>= 40% of pixels in one sample step, quiet neighbours) at t=4.50s, 4.88s: a hard cut or a jump.",
+      "check": "render",
+      "element": null,
+      "times": [
+        4.5,
+        4.875
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "index": 0,
+      "t": 0.0,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 1,
+      "t": 0.5455,
+      "changed_ratio": 0.05938,
+      "changed_box": [
+        9.7,
+        34.7,
+        42.7,
+        21.0
+      ],
+      "path": null
+    },
+    {
+      "index": 2,
+      "t": 1.0909,
+      "changed_ratio": 0.06084,
+      "changed_box": [
+        31.7,
+        32.3,
+        44.0,
+        23.3
+      ],
+      "path": null
+    },
+    {
+      "index": 3,
+      "t": 1.6364,
+      "changed_ratio": 0.06085,
+      "changed_box": [
+        53.7,
+        32.3,
+        48.7,
+        23.3
+      ],
+      "path": null
+    },
+    {
+      "index": 4,
+      "t": 2.1818,
+      "changed_ratio": 0.05361,
+      "changed_box": [
+        81.7,
+        34.7,
+        38.7,
+        21.0
+      ],
+      "path": null
+    },
+    {
+      "index": 5,
+      "t": 2.7273,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 6,
+      "t": 3.2727,
+      "changed_ratio": 3e-05,
+      "changed_box": [
+        118.3,
+        55.3,
+        1.3,
+        0.3
+      ],
+      "path": null
+    },
+    {
+      "index": 7,
+      "t": 3.8182,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 8,
+      "t": 4.3636,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 9,
+      "t": 4.9091,
+      "changed_ratio": 0.01052,
+      "changed_box": [
+        99.7,
+        34.7,
+        20.7,
+        23.7
+      ],
+      "path": null
+    },
+    {
+      "index": 10,
+      "t": 5.4545,
+      "changed_ratio": 0.04497,
+      "changed_box": [
+        99.7,
+        37.7,
+        20.7,
+        35.7
+      ],
+      "path": null
+    },
+    {
+      "index": 11,
+      "t": 6.0,
+      "changed_ratio": 0.04497,
+      "changed_box": [
+        99.7,
+        52.7,
+        20.7,
+        35.7
+      ],
+      "path": null
+    }
+  ],
+  "elements": [],
+  "loop": {
+    "checked": false,
+    "seamless": null,
+    "seam_ratio": null,
+    "step_ratio": null,
+    "seam_box": null,
+    "detail": "not checked for video input"
+  },
+  "console_errors": [],
+  "video": {
+    "container": "gif",
+    "codec": "gif",
+    "decoder": "image-decoder",
+    "width": 160,
+    "height": 90,
+    "media_duration": 6.0,
+    "fps": 10.0,
+    "frame_count": 60,
+    "start": 0.0,
+    "end": 6.0,
+    "static_threshold": 2.0,
+    "samples": [
+      {
+        "t": 0.0,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 0.125,
+        "changed_ratio": 0.01346
+      },
+      {
+        "t": 0.25,
+        "changed_ratio": 0.01636
+      },
+      {
+        "t": 0.375,
+        "changed_ratio": 0.01639
+      },
+      {
+        "t": 0.5,
+        "changed_ratio": 0.03071
+      },
+      {
+        "t": 0.5455,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 0.625,
+        "changed_ratio": 0.01636
+      },
+      {
+        "t": 0.75,
+        "changed_ratio": 0.01639
+      },
+      {
+        "t": 0.875,
+        "changed_ratio": 0.01923
+      },
+      {
+        "t": 1.0,
+        "changed_ratio": 0.02781
+      },
+      {
+        "t": 1.0909,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 1.125,
+        "changed_ratio": 0.01639
+      },
+      {
+        "t": 1.25,
+        "changed_ratio": 0.01923
+      },
+      {
+        "t": 1.375,
+        "changed_ratio": 0.01346
+      },
+      {
+        "t": 1.5,
+        "changed_ratio": 0.02781
+      },
+      {
+        "t": 1.625,
+        "changed_ratio": 0.01919
+      },
+      {
+        "t": 1.6364,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 1.75,
+        "changed_ratio": 0.01346
+      },
+      {
+        "t": 1.875,
+        "changed_ratio": 0.01633
+      },
+      {
+        "t": 2.0,
+        "changed_ratio": 0.03067
+      },
+      {
+        "t": 2.125,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.1818,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.25,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.375,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.5,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.625,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.7273,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.75,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.875,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.0,
+        "changed_ratio": 3e-05
+      },
+      {
+        "t": 3.125,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.25,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.2727,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.375,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.5,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.625,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.75,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.8182,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.875,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.0,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.125,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.25,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.3636,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.375,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.5,
+        "changed_ratio": 1.0
+      },
+      {
+        "t": 4.625,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.75,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.875,
+        "changed_ratio": 1.0
+      },
+      {
+        "t": 4.9091,
+        "changed_ratio": 0.01052
+      },
+      {
+        "t": 5.0,
+        "changed_ratio": 0.01052
+      },
+      {
+        "t": 5.125,
+        "changed_ratio": 0.01052
+      },
+      {
+        "t": 5.25,
+        "changed_ratio": 0.01052
+      },
+      {
+        "t": 5.375,
+        "changed_ratio": 0.01052
+      },
+      {
+        "t": 5.4545,
+        "changed_ratio": 0.01052
+      },
+      {
+        "t": 5.5,
+        "changed_ratio": 0.01052
+      },
+      {
+        "t": 5.625,
+        "changed_ratio": 0.01052
+      },
+      {
+        "t": 5.75,
+        "changed_ratio": 0.01052
+      },
+      {
+        "t": 5.875,
+        "changed_ratio": 0.01052
+      },
+      {
+        "t": 6.0,
+        "changed_ratio": 0.01052
+      }
+    ],
+    "tiles": [
+      {
+        "index": 0,
+        "t": 0.0,
+        "media_time": 0.0,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.345,
+        "marks": []
+      },
+      {
+        "index": 1,
+        "t": 0.5455,
+        "media_time": 0.5,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.344,
+        "marks": []
+      },
+      {
+        "index": 2,
+        "t": 1.0909,
+        "media_time": 1.0,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.349,
+        "marks": []
+      },
+      {
+        "index": 3,
+        "t": 1.6364,
+        "media_time": 1.6,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.344,
+        "marks": []
+      },
+      {
+        "index": 4,
+        "t": 2.1818,
+        "media_time": 2.1,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.344,
+        "marks": []
+      },
+      {
+        "index": 5,
+        "t": 2.7273,
+        "media_time": 2.7,
+        "black": false,
+        "blank": false,
+        "duplicate": true,
+        "sharpness": 0.344,
+        "marks": []
+      },
+      {
+        "index": 6,
+        "t": 3.2727,
+        "media_time": 3.2,
+        "black": false,
+        "blank": false,
+        "duplicate": true,
+        "sharpness": 0.342,
+        "marks": []
+      },
+      {
+        "index": 7,
+        "t": 3.8182,
+        "media_time": 3.8,
+        "black": false,
+        "blank": false,
+        "duplicate": true,
+        "sharpness": 0.342,
+        "marks": []
+      },
+      {
+        "index": 8,
+        "t": 4.3636,
+        "media_time": 4.3,
+        "black": false,
+        "blank": false,
+        "duplicate": true,
+        "sharpness": 0.342,
+        "marks": []
+      },
+      {
+        "index": 9,
+        "t": 4.9091,
+        "media_time": 4.9,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.342,
+        "marks": []
+      },
+      {
+        "index": 10,
+        "t": 5.4545,
+        "media_time": 5.4,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.342,
+        "marks": []
+      },
+      {
+        "index": 11,
+        "t": 6.0,
+        "media_time": 5.9,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.339,
+        "marks": []
+      }
+    ]
+  },
+  "marks": null
+}

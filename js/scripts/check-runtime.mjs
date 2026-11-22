@@ -23,4 +23,11 @@ if (mod.RUNTIME_JS !== source || mod.RUNTIME_SHA256 !== expected) {
   );
   process.exit(1);
 }
+const video = readFileSync(join(root, "..", "src", "framesheet", "video.js"), "utf8");
+const videoSha = createHash("sha256").update(video, "utf8").digest("hex");
+if (mod.VIDEO_JS !== video || mod.VIDEO_SHA256 !== videoSha) {
+  console.error("video.js parity FAILED: dist differs from src/framesheet/video.js. Run `npm run build`.");
+  process.exit(1);
+}
+console.log(`video.js parity OK (sha256 ${videoSha.slice(0, 12)})`);
 console.log(`runtime.js parity OK (sha256 ${expected.slice(0, 12)})`);

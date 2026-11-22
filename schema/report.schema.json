@@ -2,6 +2,26 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/phil65/framesheet/schema/report.schema.json",
   "$defs": {
+    "ActivitySample": {
+      "description": "One dense video sample: share of pixels changed since the previous sample.",
+      "properties": {
+        "t": {
+          "title": "T",
+          "type": "number"
+        },
+        "changed_ratio": {
+          "title": "Changed Ratio",
+          "type": "number"
+        }
+      },
+      "required": [
+        "t",
+        "changed_ratio"
+      ],
+      "title": "ActivitySample",
+      "type": "object",
+      "additionalProperties": false
+    },
     "AnimationTiming": {
       "description": "Timing of one declarative animation, as reported by the browser.",
       "properties": {
@@ -118,7 +138,8 @@
           "enum": [
             "override",
             "detected",
-            "fallback"
+            "fallback",
+            "media"
           ],
           "title": "Method",
           "type": "string"
@@ -254,7 +275,12 @@
             "js-driven-motion",
             "no-visible-motion",
             "no-motion",
-            "console-error"
+            "console-error",
+            "video-static-stretch",
+            "video-black-frames",
+            "video-blank-frames",
+            "video-abrupt-cut",
+            "video-mark-overlap"
           ]
         },
         "message": {
@@ -497,6 +523,502 @@
       "title": "LoopInfo",
       "type": "object",
       "additionalProperties": false
+    },
+    "MarkFrame": {
+      "additionalProperties": false,
+      "description": "Pixel size the coordinates refer to (omit for normalized 0-1 coordinates).",
+      "properties": {
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "number"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ],
+      "title": "MarkFrame",
+      "type": "object"
+    },
+    "MarkPoint": {
+      "additionalProperties": false,
+      "description": "An instant at a position, e.g. a click: drawn on the tile nearest to ``t``.",
+      "properties": {
+        "t": {
+          "minimum": 0,
+          "title": "T",
+          "type": "number"
+        },
+        "x": {
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "title": "Y",
+          "type": "number"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kind"
+        },
+        "duration": {
+          "default": 0.0,
+          "minimum": 0,
+          "title": "Duration",
+          "type": "number"
+        }
+      },
+      "required": [
+        "t",
+        "x",
+        "y",
+        "label",
+        "kind",
+        "duration"
+      ],
+      "title": "MarkPoint",
+      "type": "object"
+    },
+    "MarkRegion": {
+      "additionalProperties": false,
+      "description": "A time range, optionally with a box: a target element, a zoom, a highlight.",
+      "properties": {
+        "x": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "X"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y"
+        },
+        "w": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "W"
+        },
+        "h": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "H"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "number"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kind"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h",
+        "start",
+        "end",
+        "label",
+        "kind"
+      ],
+      "title": "MarkRegion",
+      "type": "object"
+    },
+    "MarkSpan": {
+      "additionalProperties": false,
+      "description": "A labelled time range, e.g. a caption; the optional box is its screen area.",
+      "properties": {
+        "x": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "X"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y"
+        },
+        "w": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "W"
+        },
+        "h": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "H"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "number"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kind"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h",
+        "start",
+        "end",
+        "label",
+        "kind"
+      ],
+      "title": "MarkSpan",
+      "type": "object"
+    },
+    "Marks": {
+      "additionalProperties": false,
+      "description": "Annotations drawn onto video tiles and the timeline (``--marks marks.json``).\n\nTimes are seconds of the media; coordinates are fractions (0-1) of the video frame,\nor pixels of ``frame`` if given.",
+      "properties": {
+        "frame": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MarkFrame"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "points": {
+          "items": {
+            "$ref": "#/$defs/MarkPoint"
+          },
+          "title": "Points",
+          "type": "array"
+        },
+        "regions": {
+          "items": {
+            "$ref": "#/$defs/MarkRegion"
+          },
+          "title": "Regions",
+          "type": "array"
+        },
+        "spans": {
+          "items": {
+            "$ref": "#/$defs/MarkSpan"
+          },
+          "title": "Spans",
+          "type": "array"
+        }
+      },
+      "title": "Marks",
+      "type": "object",
+      "required": [
+        "frame",
+        "points",
+        "regions",
+        "spans"
+      ]
+    },
+    "VideoInfo": {
+      "description": "Media facts and dense-sample metrics of a video or animated image.",
+      "properties": {
+        "container": {
+          "title": "Container",
+          "type": "string"
+        },
+        "codec": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Codec"
+        },
+        "decoder": {
+          "enum": [
+            "video",
+            "image-decoder"
+          ],
+          "title": "Decoder",
+          "type": "string"
+        },
+        "width": {
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "title": "Height",
+          "type": "integer"
+        },
+        "media_duration": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Media Duration"
+        },
+        "fps": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fps"
+        },
+        "frame_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Frame Count"
+        },
+        "start": {
+          "title": "Start",
+          "type": "number"
+        },
+        "end": {
+          "title": "End",
+          "type": "number"
+        },
+        "static_threshold": {
+          "title": "Static Threshold",
+          "type": "number"
+        },
+        "samples": {
+          "items": {
+            "$ref": "#/$defs/ActivitySample"
+          },
+          "title": "Samples",
+          "type": "array"
+        },
+        "tiles": {
+          "items": {
+            "$ref": "#/$defs/VideoTile"
+          },
+          "title": "Tiles",
+          "type": "array"
+        }
+      },
+      "required": [
+        "container",
+        "codec",
+        "decoder",
+        "width",
+        "height",
+        "media_duration",
+        "fps",
+        "frame_count",
+        "start",
+        "end",
+        "static_threshold",
+        "samples",
+        "tiles"
+      ],
+      "title": "VideoInfo",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "VideoTile": {
+      "description": "Per-tile numbers for videos, so an agent can score without looking.",
+      "properties": {
+        "index": {
+          "title": "Index",
+          "type": "integer"
+        },
+        "t": {
+          "title": "T",
+          "type": "number"
+        },
+        "media_time": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Media Time"
+        },
+        "black": {
+          "title": "Black",
+          "type": "boolean"
+        },
+        "blank": {
+          "title": "Blank",
+          "type": "boolean"
+        },
+        "duplicate": {
+          "title": "Duplicate",
+          "type": "boolean"
+        },
+        "sharpness": {
+          "title": "Sharpness",
+          "type": "number"
+        },
+        "marks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Marks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "index",
+        "t",
+        "media_time",
+        "black",
+        "blank",
+        "duplicate",
+        "sharpness",
+        "marks"
+      ],
+      "title": "VideoTile",
+      "type": "object",
+      "additionalProperties": false
     }
   },
   "description": "Everything framesheet found out about one input.",
@@ -508,7 +1030,8 @@
     "kind": {
       "enum": [
         "svg",
-        "html"
+        "html",
+        "video"
       ],
       "title": "Kind",
       "type": "string"
@@ -598,6 +1121,28 @@
       },
       "title": "Console Errors",
       "type": "array"
+    },
+    "video": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VideoInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "marks": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Marks"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     }
   },
   "required": [
@@ -614,7 +1159,9 @@
     "frames",
     "elements",
     "loop",
-    "console_errors"
+    "console_errors",
+    "video",
+    "marks"
   ],
   "title": "InspectionResult",
   "type": "object",
@@ -749,6 +1296,31 @@
       "severity": "warning",
       "check": "render",
       "description": "console.error or uncaught page error."
+    },
+    "video-static-stretch": {
+      "severity": "warning",
+      "check": "render",
+      "description": "No visible change for longer than the static threshold (dead time)."
+    },
+    "video-black-frames": {
+      "severity": "warning",
+      "check": "render",
+      "description": "Sampled frames that are (almost) all black."
+    },
+    "video-blank-frames": {
+      "severity": "warning",
+      "check": "render",
+      "description": "Sampled frames of one flat colour (not black)."
+    },
+    "video-abrupt-cut": {
+      "severity": "info",
+      "check": "render",
+      "description": "One large change between quiet neighbours."
+    },
+    "video-mark-overlap": {
+      "severity": "warning",
+      "check": "render",
+      "description": "A span box (e.g. a caption) covers an active target region."
     }
   }
 }

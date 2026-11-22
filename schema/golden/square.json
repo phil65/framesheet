@@ -1,0 +1,666 @@
+{
+  "source": "square.webm",
+  "kind": "video",
+  "viewport": [
+    320,
+    180
+  ],
+  "device_scale_factor": 2.0,
+  "canvas": [
+    0.0,
+    0.0,
+    320.0,
+    180.0
+  ],
+  "duration": {
+    "seconds": 6.0,
+    "method": "media",
+    "looping": false,
+    "detail": "media duration 6s",
+    "animations": []
+  },
+  "times": [
+    0.0,
+    0.5455,
+    1.0909,
+    1.6364,
+    2.1818,
+    2.7273,
+    3.2727,
+    3.8182,
+    4.3636,
+    4.9091,
+    5.4545,
+    6.0
+  ],
+  "full_at": 0.0,
+  "images": {
+    "full": "full.png",
+    "sheet": "sheet.png",
+    "heatmap": "heatmap.png",
+    "report": "report.json"
+  },
+  "findings": [
+    {
+      "severity": "warning",
+      "code": "video-static-stretch",
+      "message": "No visible change for 2.38s (t=2.00-4.38s; under 0.05% of pixels per sample): dead time?",
+      "check": "render",
+      "element": null,
+      "times": [
+        2.0,
+        4.375
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "video-black-frames",
+      "message": "3 sampled frame(s) are black: t=4.50s, 4.62s, 4.75s.",
+      "check": "render",
+      "element": null,
+      "times": [
+        4.5,
+        4.625,
+        4.75
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "video-mark-overlap",
+      "message": "Span \"Caption: save your work\" covers target \"Save button\" for t=0.50-2.50s (25% of the target box).",
+      "check": "render",
+      "element": null,
+      "times": [
+        0.5,
+        2.5
+      ]
+    },
+    {
+      "severity": "info",
+      "code": "video-abrupt-cut",
+      "message": "Abrupt change (>= 40% of pixels in one sample step, quiet neighbours) at t=4.50s, 4.88s: a hard cut or a jump.",
+      "check": "render",
+      "element": null,
+      "times": [
+        4.5,
+        4.875
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "index": 0,
+      "t": 0.0,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 1,
+      "t": 0.5455,
+      "changed_ratio": 0.05839,
+      "changed_box": [
+        19.5,
+        64.5,
+        85.0,
+        46.0
+      ],
+      "path": null
+    },
+    {
+      "index": 2,
+      "t": 1.0909,
+      "changed_ratio": 0.05837,
+      "changed_box": [
+        63.5,
+        69.5,
+        87.0,
+        41.0
+      ],
+      "path": null
+    },
+    {
+      "index": 3,
+      "t": 1.6364,
+      "changed_ratio": 0.05837,
+      "changed_box": [
+        109.5,
+        69.5,
+        95.0,
+        41.0
+      ],
+      "path": null
+    },
+    {
+      "index": 4,
+      "t": 2.1818,
+      "changed_ratio": 0.05267,
+      "changed_box": [
+        163.5,
+        69.5,
+        77.0,
+        41.0
+      ],
+      "path": null
+    },
+    {
+      "index": 5,
+      "t": 2.7273,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 6,
+      "t": 3.2727,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 7,
+      "t": 3.8182,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 8,
+      "t": 4.3636,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 9,
+      "t": 4.9091,
+      "changed_ratio": 0.00997,
+      "changed_box": [
+        199.5,
+        69.5,
+        41.0,
+        47.0
+      ],
+      "path": null
+    },
+    {
+      "index": 10,
+      "t": 5.4545,
+      "changed_ratio": 0.04413,
+      "changed_box": [
+        199.5,
+        75.5,
+        41.0,
+        71.0
+      ],
+      "path": null
+    },
+    {
+      "index": 11,
+      "t": 6.0,
+      "changed_ratio": 0.04413,
+      "changed_box": [
+        199.5,
+        105.5,
+        41.0,
+        71.0
+      ],
+      "path": null
+    }
+  ],
+  "elements": [],
+  "loop": {
+    "checked": false,
+    "seamless": null,
+    "seam_ratio": null,
+    "step_ratio": null,
+    "seam_box": null,
+    "detail": "not checked for video input"
+  },
+  "console_errors": [],
+  "video": {
+    "container": "webm",
+    "codec": "vp9",
+    "decoder": "video",
+    "width": 320,
+    "height": 180,
+    "media_duration": 6.0,
+    "fps": 10.0,
+    "frame_count": 60,
+    "start": 0.0,
+    "end": 6.0,
+    "static_threshold": 2.0,
+    "samples": [
+      {
+        "t": 0.0,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 0.125,
+        "changed_ratio": 0.01292
+      },
+      {
+        "t": 0.25,
+        "changed_ratio": 0.01576
+      },
+      {
+        "t": 0.375,
+        "changed_ratio": 0.01292
+      },
+      {
+        "t": 0.5,
+        "changed_ratio": 0.02713
+      },
+      {
+        "t": 0.5455,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 0.625,
+        "changed_ratio": 0.01571
+      },
+      {
+        "t": 0.75,
+        "changed_ratio": 0.01286
+      },
+      {
+        "t": 0.875,
+        "changed_ratio": 0.01571
+      },
+      {
+        "t": 1.0,
+        "changed_ratio": 0.0271
+      },
+      {
+        "t": 1.0909,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 1.125,
+        "changed_ratio": 0.01286
+      },
+      {
+        "t": 1.25,
+        "changed_ratio": 0.01571
+      },
+      {
+        "t": 1.375,
+        "changed_ratio": 0.01286
+      },
+      {
+        "t": 1.5,
+        "changed_ratio": 0.0271
+      },
+      {
+        "t": 1.625,
+        "changed_ratio": 0.01571
+      },
+      {
+        "t": 1.6364,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 1.75,
+        "changed_ratio": 0.01286
+      },
+      {
+        "t": 1.875,
+        "changed_ratio": 0.01571
+      },
+      {
+        "t": 2.0,
+        "changed_ratio": 0.0271
+      },
+      {
+        "t": 2.125,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.1818,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.25,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.375,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.5,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.625,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.7273,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.75,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 2.875,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.0,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.125,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.25,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.2727,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.375,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.5,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.625,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.75,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.8182,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 3.875,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.0,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.125,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.25,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.3636,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.375,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.5,
+        "changed_ratio": 1.0
+      },
+      {
+        "t": 4.625,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.75,
+        "changed_ratio": 0.0
+      },
+      {
+        "t": 4.875,
+        "changed_ratio": 1.0
+      },
+      {
+        "t": 4.9091,
+        "changed_ratio": 0.00997
+      },
+      {
+        "t": 5.0,
+        "changed_ratio": 0.00997
+      },
+      {
+        "t": 5.125,
+        "changed_ratio": 0.00997
+      },
+      {
+        "t": 5.25,
+        "changed_ratio": 0.00997
+      },
+      {
+        "t": 5.375,
+        "changed_ratio": 0.00997
+      },
+      {
+        "t": 5.4545,
+        "changed_ratio": 0.00997
+      },
+      {
+        "t": 5.5,
+        "changed_ratio": 0.00997
+      },
+      {
+        "t": 5.625,
+        "changed_ratio": 0.00997
+      },
+      {
+        "t": 5.75,
+        "changed_ratio": 0.00997
+      },
+      {
+        "t": 5.875,
+        "changed_ratio": 0.00997
+      },
+      {
+        "t": 6.0,
+        "changed_ratio": 0.00997
+      }
+    ],
+    "tiles": [
+      {
+        "index": 0,
+        "t": 0.0,
+        "media_time": 0.0,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.253,
+        "marks": []
+      },
+      {
+        "index": 1,
+        "t": 0.5455,
+        "media_time": 0.5,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.253,
+        "marks": [
+          "Caption: save your work",
+          "Save button"
+        ]
+      },
+      {
+        "index": 2,
+        "t": 1.0909,
+        "media_time": 1.0,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.254,
+        "marks": [
+          "Caption: save your work",
+          "Save button",
+          "click #save @1.00s"
+        ]
+      },
+      {
+        "index": 3,
+        "t": 1.6364,
+        "media_time": 1.6,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.253,
+        "marks": [
+          "Caption: save your work",
+          "Save button"
+        ]
+      },
+      {
+        "index": 4,
+        "t": 2.1818,
+        "media_time": 2.1,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.253,
+        "marks": [
+          "Caption: save your work",
+          "Save button"
+        ]
+      },
+      {
+        "index": 5,
+        "t": 2.7273,
+        "media_time": 2.7,
+        "black": false,
+        "blank": false,
+        "duplicate": true,
+        "sharpness": 0.253,
+        "marks": [
+          "Caption: save your work"
+        ]
+      },
+      {
+        "index": 6,
+        "t": 3.2727,
+        "media_time": 3.2,
+        "black": false,
+        "blank": false,
+        "duplicate": true,
+        "sharpness": 0.251,
+        "marks": [
+          "zoom x2"
+        ]
+      },
+      {
+        "index": 7,
+        "t": 3.8182,
+        "media_time": 3.8,
+        "black": false,
+        "blank": false,
+        "duplicate": true,
+        "sharpness": 0.251,
+        "marks": [
+          "zoom x2"
+        ]
+      },
+      {
+        "index": 8,
+        "t": 4.3636,
+        "media_time": 4.3,
+        "black": false,
+        "blank": false,
+        "duplicate": true,
+        "sharpness": 0.251,
+        "marks": [
+          "zoom x2"
+        ]
+      },
+      {
+        "index": 9,
+        "t": 4.9091,
+        "media_time": 4.9,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.251,
+        "marks": [
+          "zoom x2"
+        ]
+      },
+      {
+        "index": 10,
+        "t": 5.4545,
+        "media_time": 5.4,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.251,
+        "marks": [
+          "zoom x2"
+        ]
+      },
+      {
+        "index": 11,
+        "t": 6.0,
+        "media_time": 5.9,
+        "black": false,
+        "blank": false,
+        "duplicate": false,
+        "sharpness": 0.25,
+        "marks": []
+      }
+    ]
+  },
+  "marks": {
+    "frame": null,
+    "points": [
+      {
+        "t": 1.0,
+        "x": 0.4,
+        "y": 0.5,
+        "label": "click #save",
+        "kind": "click",
+        "duration": 0.0
+      }
+    ],
+    "regions": [
+      {
+        "x": 0.55,
+        "y": 0.3,
+        "w": 0.2,
+        "h": 0.4,
+        "start": 0.5,
+        "end": 2.5,
+        "label": "Save button",
+        "kind": "target"
+      },
+      {
+        "x": null,
+        "y": null,
+        "w": null,
+        "h": null,
+        "start": 3.0,
+        "end": 5.5,
+        "label": "zoom x2",
+        "kind": "zoom"
+      }
+    ],
+    "spans": [
+      {
+        "x": 0.5,
+        "y": 0.6,
+        "w": 0.45,
+        "h": 0.2,
+        "start": 0.2,
+        "end": 3.0,
+        "label": "Caption: save your work",
+        "kind": "caption"
+      }
+    ]
+  }
+}

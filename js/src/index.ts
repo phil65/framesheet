@@ -8,7 +8,7 @@
 export { CHECKS, Geometry, runChecks, tracks } from "./analysis.js";
 export { checkCss, checkHtmlParsed, checkSvgParsed, parseSource } from "./checks.js";
 export { autoTile, defaultColumns, sheetLayout } from "./compose.js";
-export { RUNTIME_JS, RUNTIME_SHA256 } from "./generated/assets.js";
+export { RUNTIME_JS, RUNTIME_SHA256, VIDEO_JS, VIDEO_SHA256 } from "./generated/assets.js";
 export {
   BrowserNotInstalledError,
   EPOCH,
@@ -25,6 +25,7 @@ export {
   summarize,
 } from "./inspect.js";
 export type {
+  ActivitySample,
   AnimationKind,
   AnimationTiming,
   ColorScheme,
@@ -35,10 +36,19 @@ export type {
   ImageBuffers,
   ImagePaths,
   LoopInfo,
+  MarkPoint,
+  MarkRegion,
+  Marks,
+  MarkSpan,
   Rect,
   Report,
   Severity,
   SourceKind,
+  VideoInfo,
+  VideoTile,
 } from "./models.js";
+export { activeLabels, loadMarks, MarksError, parseMarks, tileOps, tileWindows, timelineOps } from "./marks.js";
+export { probe, type Probe, sniff } from "./media.js";
 export { looksLikeSvg, parseSize } from "./sources.js";
+export { abruptCuts, denseTimes, planTimes, staticStretches, type TimesSpec } from "./video.js";
 export { detectDuration, epsilon, sampleTimes } from "./timing.js";

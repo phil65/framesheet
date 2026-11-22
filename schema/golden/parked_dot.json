@@ -310,5 +310,7 @@
     ],
     "detail": "last frame -> first frame changes 0.37% of pixels, one normal step changes 0.00%"
   },
-  "console_errors": []
+  "console_errors": [],
+  "video": null,
+  "marks": null
 }

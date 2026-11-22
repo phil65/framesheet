@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 if TYPE_CHECKING:
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 Severity = Literal["error", "warning", "info"]
-SourceKind = Literal["svg", "html"]
+SourceKind = Literal["svg", "html", "video"]
 ColorScheme = Literal["light", "dark"]
 Rect = tuple[float, float, float, float]
 """An axis-aligned box as ``(x, y, width, height)``."""
@@ -60,6 +60,20 @@ FINDING_CODES: dict[str, tuple[Severity, Literal["static", "render"], str]] = {
     "no-visible-motion": ("info", "render", "Animations declared but no pixel changed."),
     "no-motion": ("info", "render", "No animation and no pixel change."),
     "console-error": ("warning", "render", "console.error or uncaught page error."),
+    # Video checks (video.py): dense samples of a video/animated image.
+    "video-static-stretch": (
+        "warning",
+        "render",
+        "No visible change for longer than the static threshold (dead time).",
+    ),
+    "video-black-frames": ("warning", "render", "Sampled frames that are (almost) all black."),
+    "video-blank-frames": ("warning", "render", "Sampled frames of one flat colour (not black)."),
+    "video-abrupt-cut": ("info", "render", "One large change between quiet neighbours."),
+    "video-mark-overlap": (
+        "warning",
+        "render",
+        "A span box (e.g. a caption) covers an active target region.",
+    ),
 }
 """Every finding code (API: stable, kebab-case) -> (usual severity, check, meaning).
 
@@ -113,7 +127,7 @@ class DurationInfo(BaseModel):
     """The sampled time span and how it was chosen."""
 
     seconds: float
-    method: Literal["override", "detected", "fallback"]
+    method: Literal["override", "detected", "fallback", "media"]
     looping: bool
     """True if at least one animation repeats forever (or motion is JS-driven)."""
     detail: str
@@ -157,6 +171,176 @@ class LoopInfo(BaseModel):
     detail: str
 
 
+class _Box(BaseModel):
+    """Optional box ``x, y, w, h`` (all four or none), normalized 0-1 unless ``frame``."""
+
+    x: float | None = None
+    y: float | None = None
+    w: float | None = Field(default=None, gt=0)
+    h: float | None = Field(default=None, gt=0)
+
+    @model_validator(mode="after")
+    def _all_or_none(self) -> Any:
+        given = [v is not None for v in (self.x, self.y, self.w, self.h)]
+        if any(given) and not all(given):
+            msg = "x, y, w, h must be given together (or not at all)"
+            raise ValueError(msg)
+        return self
+
+    @property
+    def box(self) -> Rect | None:
+        if self.x is None or self.y is None or self.w is None or self.h is None:
+            return None
+        return (self.x, self.y, self.w, self.h)
+
+
+class MarkPoint(BaseModel):
+    """An instant at a position, e.g. a click: drawn on the tile nearest to ``t``."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    t: float = Field(ge=0)
+    x: float
+    y: float
+    label: str | None = None
+    kind: str | None = None
+    """Free-form, e.g. ``click``."""
+    duration: float = Field(default=0.0, ge=0)
+    """Seconds the point stays relevant (drawn on every tile it overlaps)."""
+
+
+class MarkRegion(_Box):
+    """A time range, optionally with a box: a target element, a zoom, a highlight."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    start: float = Field(ge=0)
+    end: float = Field(ge=0)
+    label: str | None = None
+    kind: str | None = None
+    """Free-form, e.g. ``zoom``. ``target`` boxes are checked against span boxes."""
+
+    @model_validator(mode="after")
+    def _ordered(self) -> Any:
+        if self.end < self.start:
+            msg = "end must be >= start"
+            raise ValueError(msg)
+        return self
+
+
+class MarkSpan(_Box):
+    """A labelled time range, e.g. a caption; the optional box is its screen area."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    start: float = Field(ge=0)
+    end: float = Field(ge=0)
+    label: str
+    kind: str | None = None
+    """Free-form, e.g. ``caption``."""
+
+    @model_validator(mode="after")
+    def _ordered(self) -> Any:
+        if self.end < self.start:
+            msg = "end must be >= start"
+            raise ValueError(msg)
+        return self
+
+
+class MarkFrame(BaseModel):
+    """Pixel size the coordinates refer to (omit for normalized 0-1 coordinates)."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    width: float = Field(gt=0)
+    height: float = Field(gt=0)
+
+
+class Marks(BaseModel):
+    """Annotations drawn onto video tiles and the timeline (``--marks marks.json``).
+
+    Times are seconds of the media; coordinates are fractions (0-1) of the video frame,
+    or pixels of ``frame`` if given.
+    """
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    frame: MarkFrame | None = None
+    points: list[MarkPoint] = Field(default_factory=list)
+    regions: list[MarkRegion] = Field(default_factory=list)
+    spans: list[MarkSpan] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _coordinates(self) -> Any:
+        fw, fh = (self.frame.width, self.frame.height) if self.frame else (1.0, 1.0)
+        for kind, items in (("points", self.points), ("regions", self.regions)):
+            for i, item in enumerate(items):
+                _check_xy(f"{kind}[{i}]", item, fw, fh)
+        for i, item in enumerate(self.spans):
+            _check_xy(f"spans[{i}]", item, fw, fh)
+        return self
+
+    def norm(self, x: float, y: float) -> tuple[float, float]:
+        """A position as fractions of the frame."""
+        if self.frame:
+            return x / self.frame.width, y / self.frame.height
+        return x, y
+
+
+def _check_xy(where: str, item: Any, fw: float, fh: float) -> None:
+    box = item.box if isinstance(item, _Box) else (item.x, item.y, 0.0, 0.0)
+    if box is None:
+        return
+    x, y, w, h = box
+    tol = 1e-6
+    if x < -tol or y < -tol or x + w > fw * (1 + tol) + tol or y + h > fh * (1 + tol) + tol:
+        unit = "the frame" if fw != 1.0 or fh != 1.0 else "0-1"
+        msg = f"{where}: coordinates outside {unit}"
+        raise ValueError(msg)
+
+
+class ActivitySample(BaseModel):
+    """One dense video sample: share of pixels changed since the previous sample."""
+
+    t: float
+    changed_ratio: float
+
+
+class VideoTile(BaseModel):
+    """Per-tile numbers for videos, so an agent can score without looking."""
+
+    index: int
+    t: float
+    media_time: float | None
+    """Presentation time of the decoded frame (``None`` if the browser did not say)."""
+    black: bool
+    blank: bool
+    """One flat colour that is not black (e.g. a white page before load)."""
+    duplicate: bool
+    """Near-identical to the previous tile (changes < 0.05% of pixels)."""
+    sharpness: float
+    """Mean luma gradient (0-510); compare tiles of one video: drops = blur/upscaling."""
+    marks: list[str]
+    """Labels of the marks active on this tile."""
+
+
+class VideoInfo(BaseModel):
+    """Media facts and dense-sample metrics of a video or animated image."""
+
+    container: str
+    """``mp4``, ``mov``, ``webm``, ``mkv``, ``gif`` or ``webp``."""
+    codec: str | None
+    """``h264``, ``hevc``, ``vp8``, ``vp9``, ``av1``, ``gif``, ``webp``, ... if detectable."""
+    decoder: Literal["video", "image-decoder"]
+    width: int
+    height: int
+    media_duration: float | None
+    fps: float | None
+    frame_count: int | None
+    start: float
+    end: float
+    static_threshold: float
+    """Seconds without visible change that count as a static stretch."""
+    samples: list[ActivitySample]
+    """Every sampled time in ``[start, end]`` (tiles + dense grid), in order."""
+    tiles: list[VideoTile]
+
+
 class Images(BaseModel):
     full: Path
     sheet: Path
@@ -183,6 +367,10 @@ class InspectionResult(BaseModel):
     elements: list[ElementTrack]
     loop: LoopInfo
     console_errors: list[str] = Field(default_factory=list)
+    video: VideoInfo | None = None
+    """Media facts and per-tile metrics (video inputs only)."""
+    marks: Marks | None = None
+    """The marks drawn onto the sheet (``--marks``), as given."""
 
     @property
     def errors(self) -> list[Finding]:
@@ -205,6 +393,13 @@ class InspectionResult(BaseModel):
             f"duration: {d.seconds:g}s {d.method}: {d.detail}"
             + (" [looping]" if d.looping else ""),
         ]
+        if v := self.video:
+            facts = f"{v.container} {v.codec or '?'} {v.width}x{v.height}"
+            if v.fps:
+                facts += f" {v.fps:g}fps"
+            if v.frame_count:
+                facts += f", {v.frame_count} frames"
+            lines.append(f"video: {facts}; range {v.start:g}-{v.end:g}s, {len(v.samples)} samples")
         busiest = max(self.frames, key=lambda f: f.changed_ratio)
         motion = (
             f"max change {busiest.changed_ratio:.1%} at t={busiest.t:.2f}s"
@@ -237,7 +432,8 @@ class InspectionResult(BaseModel):
         lines += [
             "images:",
             f"  full     {self.images.full}  (t={self.full_at:g}s: layout, text, margins)",
-            f"  sheet    {self.images.sheet}  (motion over one cycle)",
+            f"  sheet    {self.images.sheet}  "
+            + ("(tiles over the range + timeline)" if self.video else "(motion over one cycle)"),
             f"  heatmap  {self.images.heatmap}  (what moves at all)",
             f"  report   {self.images.report}",
         ]
@@ -275,4 +471,24 @@ def report_schema() -> dict[str, Any]:
             name: {"severity": severity, "check": check, "description": text}
             for name, (severity, check, text) in FINDING_CODES.items()
         },
+    }
+
+
+def marks_schema() -> dict[str, Any]:
+    """JSON Schema of ``marks.json`` (``--marks``), shared with the npm package (``schema/``).
+
+    Cross-field rules (box all-or-none, ``end >= start``, coordinates inside the frame)
+    are enforced by both implementations' validators and documented in the description.
+    """
+    schema = Marks.model_json_schema(mode="validation")
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://github.com/phil65/framesheet/schema/marks.schema.json",
+        **schema,
+        "description": (
+            "framesheet marks: annotations drawn onto video contact-sheet tiles and the "
+            "timeline. Times in seconds of the media. Coordinates are fractions (0-1) of "
+            "the video frame, or pixels of `frame` if given. A box (x, y, w, h) is all or "
+            "nothing; end >= start; boxes and points must lie inside the frame."
+        ),
     }

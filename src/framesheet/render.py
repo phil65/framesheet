@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 import datetime as dt
 from importlib.resources import files
 import io
+import re
 import subprocess
 import sys
 from typing import TYPE_CHECKING, Any, Self
@@ -25,9 +26,10 @@ from PIL import Image
 
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from types import TracebackType
 
-    from playwright.sync_api import Browser, Page, Playwright
+    from playwright.sync_api import Browser, Page, Playwright, Route
 
     from framesheet.models import ColorScheme
     from framesheet.sources import Source
@@ -47,6 +49,27 @@ _LAUNCH_ARGS = [
     "--force-color-profile=srgb",
     "--disable-lcd-text",
 ]
+
+
+def _serve(body: bytes, content_type: str) -> Callable[[Route], None]:
+    """Route handler serving ``body`` with HTTP range support (media elements seek by range)."""
+
+    def handle(route: Route) -> None:
+        total = len(body)
+        headers = {"Content-Type": content_type, "Accept-Ranges": "bytes"}
+        match = re.fullmatch(r"bytes=(\d*)-(\d*)", route.request.headers.get("range", ""))
+        if not match or total == 0:
+            route.fulfill(status=200, headers=headers, body=body)
+            return
+        first = int(match.group(1) or 0)
+        last = min(int(match.group(2)) if match.group(2) else total - 1, total - 1)
+        if first >= total or last < first:
+            route.fulfill(status=416, headers={"Content-Range": f"bytes */{total}"})
+            return
+        headers["Content-Range"] = f"bytes {first}-{last}/{total}"
+        route.fulfill(status=206, headers=headers, body=body[first : last + 1])
+
+    return handle
 
 
 class BrowserNotInstalledError(RuntimeError):
@@ -85,8 +108,14 @@ class Session:
         scale: float = 1.0,
         color_scheme: ColorScheme = "light",
         timeout: float = 30.0,
+        clock: bool = True,
+        routes: dict[str, tuple[bytes, str]] | None = None,
+        channel: str | None = None,
     ) -> None:
         self.source = source
+        self.clock = clock
+        self.routes = routes or {}
+        self.channel = channel
         self.size = size
         self.scale = scale
         self.color_scheme = color_scheme
@@ -103,7 +132,7 @@ class Session:
 
         self._pw = sync_playwright().start()
         try:
-            self._browser = self._pw.chromium.launch(args=_LAUNCH_ARGS)
+            self._browser = self._pw.chromium.launch(args=_LAUNCH_ARGS, channel=self.channel)
         except Error as exc:
             self._pw.stop()
             if "Executable doesn't exist" in str(exc) or "playwright install" in str(exc):
@@ -117,6 +146,8 @@ class Session:
             locale="en-US",
             timezone_id="UTC",
         )
+        for url, (body, content_type) in self.routes.items():
+            context.route(url, _serve(body, content_type))
         page = context.new_page()
         page.set_default_timeout(self.timeout_ms)
         page.on("pageerror", lambda exc: self.console_errors.append(f"pageerror: {exc}"))
@@ -131,7 +162,8 @@ class Session:
         # pause_at() installs the fake clock itself. A separate install() first would let
         # the real time between the two calls leak into performance.now() (Playwright
         # replays that interval as running time), shifting rAF-driven frames per run.
-        page.clock.pause_at(_EPOCH + dt.timedelta(seconds=1))
+        if self.clock:
+            page.clock.pause_at(_EPOCH + dt.timedelta(seconds=1))
         self._page = page
         return self
 
@@ -153,6 +185,15 @@ class Session:
 
     def js(self, expression: str, arg: Any = None) -> Any:
         return self.page.evaluate(expression, arg)
+
+    def goto(self) -> None:
+        """Navigate only (no runtime, no seeking): for video pages."""
+        self.page.goto(self.source.url, wait_until="load")
+
+    def capture(self) -> Image.Image:
+        """Screenshot of the current state."""
+        png = self.page.screenshot(type="png", caret="hide", animations="allow", scale="device")
+        return Image.open(io.BytesIO(png)).convert("RGB")
 
     def load(self) -> None:
         response = self.page.goto(self.source.url, wait_until="load")

@@ -1,0 +1,307 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/phil65/framesheet/schema/marks.schema.json",
+  "$defs": {
+    "MarkFrame": {
+      "additionalProperties": false,
+      "description": "Pixel size the coordinates refer to (omit for normalized 0-1 coordinates).",
+      "properties": {
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "number"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ],
+      "title": "MarkFrame",
+      "type": "object"
+    },
+    "MarkPoint": {
+      "additionalProperties": false,
+      "description": "An instant at a position, e.g. a click: drawn on the tile nearest to ``t``.",
+      "properties": {
+        "t": {
+          "minimum": 0,
+          "title": "T",
+          "type": "number"
+        },
+        "x": {
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "title": "Y",
+          "type": "number"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kind"
+        },
+        "duration": {
+          "default": 0.0,
+          "minimum": 0,
+          "title": "Duration",
+          "type": "number"
+        }
+      },
+      "required": [
+        "t",
+        "x",
+        "y"
+      ],
+      "title": "MarkPoint",
+      "type": "object"
+    },
+    "MarkRegion": {
+      "additionalProperties": false,
+      "description": "A time range, optionally with a box: a target element, a zoom, a highlight.",
+      "properties": {
+        "x": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "X"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y"
+        },
+        "w": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "W"
+        },
+        "h": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "H"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "number"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kind"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "MarkRegion",
+      "type": "object"
+    },
+    "MarkSpan": {
+      "additionalProperties": false,
+      "description": "A labelled time range, e.g. a caption; the optional box is its screen area.",
+      "properties": {
+        "x": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "X"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y"
+        },
+        "w": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "W"
+        },
+        "h": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "H"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "number"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kind"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "label"
+      ],
+      "title": "MarkSpan",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "framesheet marks: annotations drawn onto video contact-sheet tiles and the timeline. Times in seconds of the media. Coordinates are fractions (0-1) of the video frame, or pixels of `frame` if given. A box (x, y, w, h) is all or nothing; end >= start; boxes and points must lie inside the frame.",
+  "properties": {
+    "frame": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MarkFrame"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "points": {
+      "items": {
+        "$ref": "#/$defs/MarkPoint"
+      },
+      "title": "Points",
+      "type": "array"
+    },
+    "regions": {
+      "items": {
+        "$ref": "#/$defs/MarkRegion"
+      },
+      "title": "Regions",
+      "type": "array"
+    },
+    "spans": {
+      "items": {
+        "$ref": "#/$defs/MarkSpan"
+      },
+      "title": "Spans",
+      "type": "array"
+    }
+  },
+  "title": "Marks",
+  "type": "object"
+}

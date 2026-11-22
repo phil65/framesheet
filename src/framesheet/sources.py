@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING
 import urllib.request
 import xml.etree.ElementTree as ET
 
+from framesheet import media
+
 
 if TYPE_CHECKING:
     from framesheet.models import SourceKind
@@ -31,6 +33,34 @@ class Source:
     """What the browser navigates to."""
     text: str | None
     """Source text if available locally (used for static checks and size detection)."""
+    media: bytes | None = None
+    """Video/animated image bytes (``kind == "video"``), served to the wrapper page."""
+    container: str | None = None
+    """Video container (``mp4``, ``webm``, ``gif``, ...) for video sources."""
+
+
+VIDEO_ORIGIN = "https://framesheet.invalid"
+"""Video wrapper pages and media are served from this virtual (secure) origin."""
+VIDEO_PAGE = (
+    "<!DOCTYPE html><html><head><meta charset='utf-8'><title>framesheet video</title>"
+    "</head><body></body></html>"
+)
+
+
+def video_source(label: str, data: bytes, container: str | None = None) -> Source:
+    """A video/animated image, played in a wrapper page on :data:`VIDEO_ORIGIN`."""
+    kind = media.sniff(data) or container
+    if kind is None:
+        msg = f"Not a supported video or animated image: {label}"
+        raise ValueError(msg)
+    return Source(
+        label=label, kind="video", url=f"{VIDEO_ORIGIN}/video.html", text=None, media=data,
+        container=kind,
+    )  # fmt: skip
+
+
+def _video_ext(name: str) -> str | None:
+    return media.VIDEO_EXTENSIONS.get(Path(name.split("?", maxsplit=1)[0]).suffix.lower())
 
 
 def looks_like_svg(text: str) -> bool:
@@ -51,6 +81,8 @@ def resolve(source: str | Path, workdir: Path) -> Source:
         text = sys.stdin.read()
         return snippet(text, workdir, label="-")
     if isinstance(source, str) and re.match(r"^https?://", source):
+        if container := _video_ext(source):
+            return video_source(source, fetch_bytes(source), container)
         text = fetch_text(source)
         by_name = source.split("?")[0].lower().endswith(".svg")
         is_svg = by_name or bool(text and looks_like_svg(text))
@@ -60,6 +92,10 @@ def resolve(source: str | Path, workdir: Path) -> Source:
     if not path.is_file():
         msg = f"Input not found: {source}"
         raise FileNotFoundError(msg)
+    with path.open("rb") as fh:
+        head = fh.read(64)
+    if (container := _video_ext(path.name)) or media.sniff(head):
+        return video_source(str(source), path.read_bytes(), container)
     text = path.read_text(encoding="utf-8", errors="replace")
     if path.suffix.lower() == ".svg":
         kind = "svg"
@@ -78,6 +114,17 @@ def fetch_text(url: str, timeout: float = 15.0) -> str | None:
             return response.read().decode("utf-8", errors="replace")
     except (OSError, ValueError):
         return None
+
+
+def fetch_bytes(url: str, timeout: float = 60.0) -> bytes:
+    """Download a video URL (errors are raised: there is nothing to inspect without it)."""
+    request = urllib.request.Request(url, headers={"User-Agent": "framesheet"})
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return response.read()
+    except (OSError, ValueError) as exc:
+        msg = f"Cannot download {url}: {exc}"
+        raise FileNotFoundError(msg) from None
 
 
 def snippet(text: str, workdir: Path, *, label: str = "<snippet>") -> Source:

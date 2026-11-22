@@ -277,5 +277,7 @@
     "seam_box": null,
     "detail": "finite animation (does not repeat)"
   },
-  "console_errors": []
+  "console_errors": [],
+  "video": null,
+  "marks": null
 }
