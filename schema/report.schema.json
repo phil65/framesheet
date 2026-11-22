@@ -1,0 +1,754 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/phil65/framesheet/schema/report.schema.json",
+  "$defs": {
+    "AnimationTiming": {
+      "description": "Timing of one declarative animation, as reported by the browser.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "smil",
+            "css-animation",
+            "css-transition",
+            "web-animation"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "start": {
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "title": "Duration",
+          "type": "number"
+        },
+        "iterations": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Iterations"
+        },
+        "direction": {
+          "default": "normal",
+          "title": "Direction",
+          "type": "string"
+        },
+        "period": {
+          "title": "Period",
+          "type": "number"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "End"
+        },
+        "transform_box": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transform Box"
+        }
+      },
+      "required": [
+        "kind",
+        "target",
+        "name",
+        "start",
+        "duration",
+        "iterations",
+        "direction",
+        "period",
+        "end",
+        "transform_box"
+      ],
+      "title": "AnimationTiming",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "DurationInfo": {
+      "description": "The sampled time span and how it was chosen.",
+      "properties": {
+        "seconds": {
+          "title": "Seconds",
+          "type": "number"
+        },
+        "method": {
+          "enum": [
+            "override",
+            "detected",
+            "fallback"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "looping": {
+          "title": "Looping",
+          "type": "boolean"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "animations": {
+          "items": {
+            "$ref": "#/$defs/AnimationTiming"
+          },
+          "title": "Animations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "seconds",
+        "method",
+        "looping",
+        "detail",
+        "animations"
+      ],
+      "title": "DurationInfo",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "ElementTrack": {
+      "description": "Geometry of one animated element over all frames.",
+      "properties": {
+        "element": {
+          "title": "Element",
+          "type": "string"
+        },
+        "animated_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Animated By",
+          "type": "array"
+        },
+        "units": {
+          "enum": [
+            "viewBox",
+            "px"
+          ],
+          "title": "Units",
+          "type": "string"
+        },
+        "boxes": {
+          "items": {
+            "anyOf": [
+              {
+                "maxItems": 4,
+                "minItems": 4,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Boxes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "element",
+        "animated_by",
+        "units",
+        "boxes"
+      ],
+      "title": "ElementTrack",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "Finding": {
+      "description": "A single problem (or noteworthy fact) found by a static or render check.",
+      "properties": {
+        "severity": {
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "code": {
+          "title": "Code",
+          "type": "string",
+          "enum": [
+            "malformed-xml",
+            "not-svg",
+            "missing-xmlns",
+            "missing-viewbox",
+            "missing-title",
+            "script",
+            "foreign-object",
+            "event-handler",
+            "external-url",
+            "positive-begin",
+            "duplicate-id",
+            "broken-ref",
+            "css-external",
+            "no-reduced-motion",
+            "transform-origin-without-box",
+            "transform-without-box",
+            "large-file",
+            "parked-at-origin",
+            "outside-bounds",
+            "text-overflow",
+            "svg-transform-box",
+            "non-seamless-loop",
+            "js-driven-motion",
+            "no-visible-motion",
+            "no-motion",
+            "console-error"
+          ]
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "check": {
+          "enum": [
+            "static",
+            "render"
+          ],
+          "title": "Check",
+          "type": "string"
+        },
+        "element": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Element"
+        },
+        "times": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Times"
+        }
+      },
+      "required": [
+        "severity",
+        "code",
+        "message",
+        "check",
+        "element",
+        "times"
+      ],
+      "title": "Finding",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "FrameMetrics": {
+      "description": "Per-frame numbers.",
+      "properties": {
+        "index": {
+          "title": "Index",
+          "type": "integer"
+        },
+        "t": {
+          "title": "T",
+          "type": "number"
+        },
+        "changed_ratio": {
+          "title": "Changed Ratio",
+          "type": "number"
+        },
+        "changed_box": {
+          "anyOf": [
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Changed Box"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "format": "path",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        }
+      },
+      "required": [
+        "index",
+        "t",
+        "changed_ratio",
+        "changed_box",
+        "path"
+      ],
+      "title": "FrameMetrics",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "Images": {
+      "properties": {
+        "full": {
+          "format": "path",
+          "title": "Full",
+          "type": "string"
+        },
+        "sheet": {
+          "format": "path",
+          "title": "Sheet",
+          "type": "string"
+        },
+        "heatmap": {
+          "format": "path",
+          "title": "Heatmap",
+          "type": "string"
+        },
+        "report": {
+          "format": "path",
+          "title": "Report",
+          "type": "string"
+        }
+      },
+      "required": [
+        "full",
+        "sheet",
+        "heatmap",
+        "report"
+      ],
+      "title": "Images",
+      "type": "object",
+      "additionalProperties": false
+    },
+    "LoopInfo": {
+      "description": "How cleanly the last frame of a cycle joins the first.",
+      "properties": {
+        "checked": {
+          "title": "Checked",
+          "type": "boolean"
+        },
+        "seamless": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seamless"
+        },
+        "seam_ratio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seam Ratio"
+        },
+        "step_ratio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step Ratio"
+        },
+        "seam_box": {
+          "anyOf": [
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seam Box"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "checked",
+        "seamless",
+        "seam_ratio",
+        "step_ratio",
+        "seam_box",
+        "detail"
+      ],
+      "title": "LoopInfo",
+      "type": "object",
+      "additionalProperties": false
+    }
+  },
+  "description": "Everything framesheet found out about one input.",
+  "properties": {
+    "source": {
+      "title": "Source",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "svg",
+        "html"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "viewport": {
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        }
+      ],
+      "title": "Viewport",
+      "type": "array"
+    },
+    "device_scale_factor": {
+      "title": "Device Scale Factor",
+      "type": "number"
+    },
+    "canvas": {
+      "maxItems": 4,
+      "minItems": 4,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Canvas",
+      "type": "array"
+    },
+    "duration": {
+      "$ref": "#/$defs/DurationInfo"
+    },
+    "times": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Times",
+      "type": "array"
+    },
+    "full_at": {
+      "title": "Full At",
+      "type": "number"
+    },
+    "images": {
+      "$ref": "#/$defs/Images"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/Finding"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "frames": {
+      "items": {
+        "$ref": "#/$defs/FrameMetrics"
+      },
+      "title": "Frames",
+      "type": "array"
+    },
+    "elements": {
+      "items": {
+        "$ref": "#/$defs/ElementTrack"
+      },
+      "title": "Elements",
+      "type": "array"
+    },
+    "loop": {
+      "$ref": "#/$defs/LoopInfo"
+    },
+    "console_errors": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Console Errors",
+      "type": "array"
+    }
+  },
+  "required": [
+    "source",
+    "kind",
+    "viewport",
+    "device_scale_factor",
+    "canvas",
+    "duration",
+    "times",
+    "full_at",
+    "images",
+    "findings",
+    "frames",
+    "elements",
+    "loop",
+    "console_errors"
+  ],
+  "title": "InspectionResult",
+  "type": "object",
+  "additionalProperties": false,
+  "x-finding-codes": {
+    "malformed-xml": {
+      "severity": "error",
+      "check": "static",
+      "description": "The SVG is not well-formed XML."
+    },
+    "not-svg": {
+      "severity": "error",
+      "check": "static",
+      "description": "The root element is not <svg>."
+    },
+    "missing-xmlns": {
+      "severity": "error",
+      "check": "static",
+      "description": "The root <svg> lacks the SVG namespace."
+    },
+    "missing-viewbox": {
+      "severity": "error",
+      "check": "static",
+      "description": "The root <svg> has no viewBox."
+    },
+    "missing-title": {
+      "severity": "warning",
+      "check": "static",
+      "description": "No aria-label or <title>."
+    },
+    "script": {
+      "severity": "error",
+      "check": "static",
+      "description": "Contains <script>."
+    },
+    "foreign-object": {
+      "severity": "warning",
+      "check": "static",
+      "description": "Contains <foreignObject>."
+    },
+    "event-handler": {
+      "severity": "error",
+      "check": "static",
+      "description": "Inline on* event handler attribute."
+    },
+    "external-url": {
+      "severity": "warning",
+      "check": "static",
+      "description": "External http(s) URL in an attribute."
+    },
+    "positive-begin": {
+      "severity": "warning",
+      "check": "static",
+      "description": "<animateMotion> with a positive begin."
+    },
+    "duplicate-id": {
+      "severity": "error",
+      "check": "static",
+      "description": "The same id is used more than once."
+    },
+    "broken-ref": {
+      "severity": "error",
+      "check": "static",
+      "description": "#id / url(#id) reference without a matching id."
+    },
+    "css-external": {
+      "severity": "warning",
+      "check": "static",
+      "description": "CSS references an external URL or font."
+    },
+    "no-reduced-motion": {
+      "severity": "warning",
+      "check": "static",
+      "description": "CSS animations without prefers-reduced-motion."
+    },
+    "transform-origin-without-box": {
+      "severity": "warning",
+      "check": "static",
+      "description": "CSS transform-origin without transform-box in SVG."
+    },
+    "transform-without-box": {
+      "severity": "warning",
+      "check": "static",
+      "description": "@keyframes animate transforms in SVG without transform-box."
+    },
+    "large-file": {
+      "severity": "warning",
+      "check": "static",
+      "description": "SVG larger than 100 KB."
+    },
+    "parked-at-origin": {
+      "severity": "warning",
+      "check": "render",
+      "description": "Small SVG element sits at the origin (0,0)."
+    },
+    "outside-bounds": {
+      "severity": "warning",
+      "check": "render",
+      "description": "Element extends outside the viewBox/viewport."
+    },
+    "text-overflow": {
+      "severity": "warning",
+      "check": "render",
+      "description": "Text larger than its container."
+    },
+    "svg-transform-box": {
+      "severity": "warning",
+      "check": "render",
+      "description": "CSS transform animation pivots around the SVG origin."
+    },
+    "non-seamless-loop": {
+      "severity": "warning",
+      "check": "render",
+      "description": "The loop jumps at the cycle end."
+    },
+    "js-driven-motion": {
+      "severity": "warning",
+      "check": "render",
+      "description": "Pixels change without declarative animations."
+    },
+    "no-visible-motion": {
+      "severity": "info",
+      "check": "render",
+      "description": "Animations declared but no pixel changed."
+    },
+    "no-motion": {
+      "severity": "info",
+      "check": "render",
+      "description": "No animation and no pixel change."
+    },
+    "console-error": {
+      "severity": "warning",
+      "check": "render",
+      "description": "console.error or uncaught page error."
+    }
+  }
+}

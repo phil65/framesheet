@@ -1,0 +1,573 @@
+{
+  "source": "pipeline.svg",
+  "kind": "svg",
+  "viewport": [
+    720,
+    260
+  ],
+  "device_scale_factor": 1.0,
+  "canvas": [
+    0.0,
+    0.0,
+    720.0,
+    260.0
+  ],
+  "duration": {
+    "seconds": 4.0,
+    "method": "detected",
+    "looping": true,
+    "detail": "LCM of loop periods 2s, 4s (4 animation(s): css-animation, smil)",
+    "animations": [
+      {
+        "kind": "smil",
+        "target": "circle[1]",
+        "name": "animateMotion",
+        "start": -0.5,
+        "duration": 2.0,
+        "iterations": null,
+        "direction": "normal",
+        "period": 2.0,
+        "end": null,
+        "transform_box": null
+      },
+      {
+        "kind": "smil",
+        "target": "circle[2]",
+        "name": "animateMotion",
+        "start": -1.5,
+        "duration": 2.0,
+        "iterations": null,
+        "direction": "normal",
+        "period": 2.0,
+        "end": null,
+        "transform_box": null
+      },
+      {
+        "kind": "css-animation",
+        "target": "g.pl-hub[1]",
+        "name": "pl-pulse",
+        "start": 0.0,
+        "duration": 2.0,
+        "iterations": null,
+        "direction": "normal",
+        "period": 2.0,
+        "end": null,
+        "transform_box": "fill-box"
+      },
+      {
+        "kind": "css-animation",
+        "target": "rect.pl-spin[4]",
+        "name": "pl-spin",
+        "start": 0.0,
+        "duration": 4.0,
+        "iterations": null,
+        "direction": "normal",
+        "period": 4.0,
+        "end": null,
+        "transform_box": "fill-box"
+      }
+    ]
+  },
+  "times": [
+    0.0,
+    0.3636,
+    0.7273,
+    1.0909,
+    1.4545,
+    1.8182,
+    2.1818,
+    2.5455,
+    2.9091,
+    3.2727,
+    3.6364,
+    3.9833
+  ],
+  "full_at": 0.0,
+  "images": {
+    "full": "full.png",
+    "sheet": "sheet.png",
+    "heatmap": "heatmap.png",
+    "report": "report.json"
+  },
+  "findings": [],
+  "frames": [
+    {
+      "index": 0,
+      "t": 0.0,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 1,
+      "t": 0.3636,
+      "changed_ratio": 0.01189,
+      "changed_box": [
+        224.0,
+        77.0,
+        285.0,
+        107.0
+      ],
+      "path": null
+    },
+    {
+      "index": 2,
+      "t": 0.7273,
+      "changed_ratio": 0.01936,
+      "changed_box": [
+        237.0,
+        74.0,
+        272.0,
+        112.0
+      ],
+      "path": null
+    },
+    {
+      "index": 3,
+      "t": 1.0909,
+      "changed_ratio": 0.01082,
+      "changed_box": [
+        250.0,
+        74.0,
+        214.0,
+        112.0
+      ],
+      "path": null
+    },
+    {
+      "index": 4,
+      "t": 1.4545,
+      "changed_ratio": 0.0154,
+      "changed_box": [
+        263.0,
+        74.0,
+        214.0,
+        112.0
+      ],
+      "path": null
+    },
+    {
+      "index": 5,
+      "t": 1.8182,
+      "changed_ratio": 0.01846,
+      "changed_box": [
+        217.0,
+        75.0,
+        273.0,
+        110.0
+      ],
+      "path": null
+    },
+    {
+      "index": 6,
+      "t": 2.1818,
+      "changed_ratio": 0.00323,
+      "changed_box": [
+        217.0,
+        83.0,
+        286.0,
+        53.0
+      ],
+      "path": null
+    },
+    {
+      "index": 7,
+      "t": 2.5455,
+      "changed_ratio": 0.01848,
+      "changed_box": [
+        230.0,
+        75.0,
+        273.0,
+        110.0
+      ],
+      "path": null
+    },
+    {
+      "index": 8,
+      "t": 2.9091,
+      "changed_ratio": 0.01542,
+      "changed_box": [
+        243.0,
+        74.0,
+        214.0,
+        112.0
+      ],
+      "path": null
+    },
+    {
+      "index": 9,
+      "t": 3.2727,
+      "changed_ratio": 0.01083,
+      "changed_box": [
+        256.0,
+        74.0,
+        214.0,
+        112.0
+      ],
+      "path": null
+    },
+    {
+      "index": 10,
+      "t": 3.6364,
+      "changed_ratio": 0.0194,
+      "changed_box": [
+        210.0,
+        74.0,
+        273.0,
+        112.0
+      ],
+      "path": null
+    },
+    {
+      "index": 11,
+      "t": 3.9833,
+      "changed_ratio": 0.01199,
+      "changed_box": [
+        210.0,
+        77.0,
+        286.0,
+        107.0
+      ],
+      "path": null
+    }
+  ],
+  "elements": [
+    {
+      "element": "g.pl-hub[1]",
+      "animated_by": [
+        "css-animation",
+        "moved"
+      ],
+      "units": "viewBox",
+      "boxes": [
+        [
+          284.0,
+          78.0,
+          152.0,
+          104.0
+        ],
+        [
+          282.32,
+          76.85,
+          155.35,
+          106.29
+        ],
+        [
+          278.86,
+          74.48,
+          162.28,
+          111.04
+        ],
+        [
+          278.02,
+          73.91,
+          163.96,
+          112.18
+        ],
+        [
+          280.49,
+          75.6,
+          159.03,
+          108.81
+        ],
+        [
+          283.59,
+          77.72,
+          152.82,
+          104.56
+        ],
+        [
+          283.59,
+          77.72,
+          152.82,
+          104.56
+        ],
+        [
+          280.49,
+          75.6,
+          159.03,
+          108.81
+        ],
+        [
+          278.02,
+          73.91,
+          163.96,
+          112.18
+        ],
+        [
+          278.86,
+          74.48,
+          162.28,
+          111.04
+        ],
+        [
+          282.32,
+          76.85,
+          155.35,
+          106.29
+        ],
+        [
+          284.0,
+          78.0,
+          152.01,
+          104.0
+        ]
+      ]
+    },
+    {
+      "element": "rect.pl-spin[4]",
+      "animated_by": [
+        "css-animation",
+        "moved"
+      ],
+      "units": "viewBox",
+      "boxes": [
+        [
+          397.0,
+          85.0,
+          14.0,
+          14.0
+        ],
+        [
+          394.33,
+          82.33,
+          19.35,
+          19.35
+        ],
+        [
+          394.72,
+          82.72,
+          18.55,
+          18.55
+        ],
+        [
+          396.08,
+          84.08,
+          15.85,
+          15.85
+        ],
+        [
+          394.13,
+          82.13,
+          19.75,
+          19.75
+        ],
+        [
+          395.31,
+          83.31,
+          17.38,
+          17.38
+        ],
+        [
+          395.31,
+          83.31,
+          17.38,
+          17.38
+        ],
+        [
+          394.13,
+          82.13,
+          19.75,
+          19.75
+        ],
+        [
+          396.08,
+          84.08,
+          15.85,
+          15.85
+        ],
+        [
+          394.72,
+          82.72,
+          18.55,
+          18.55
+        ],
+        [
+          394.33,
+          82.33,
+          19.35,
+          19.35
+        ],
+        [
+          396.82,
+          84.82,
+          14.36,
+          14.36
+        ]
+      ]
+    },
+    {
+      "element": "circle[1]",
+      "animated_by": [
+        "smil",
+        "moved"
+      ],
+      "units": "viewBox",
+      "boxes": [
+        [
+          224.0,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          237.09,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          250.18,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          263.27,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          276.36,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          217.46,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          230.54,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          243.64,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          256.73,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          269.82,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          210.91,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          223.4,
+          124.0,
+          12.0,
+          12.0
+        ]
+      ]
+    },
+    {
+      "element": "circle[2]",
+      "animated_by": [
+        "smil",
+        "moved"
+      ],
+      "units": "viewBox",
+      "boxes": [
+        [
+          484.0,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          497.09,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          438.18,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          451.27,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          464.36,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          477.46,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          490.54,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          431.64,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          444.73,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          457.82,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          470.91,
+          124.0,
+          12.0,
+          12.0
+        ],
+        [
+          483.4,
+          124.0,
+          12.0,
+          12.0
+        ]
+      ]
+    }
+  ],
+  "loop": {
+    "checked": true,
+    "seamless": true,
+    "seam_ratio": 0.00064,
+    "step_ratio": 0.00066,
+    "seam_box": null,
+    "detail": "last frame -> first frame changes 0.06% of pixels, one normal step changes 0.07%"
+  },
+  "console_errors": []
+}

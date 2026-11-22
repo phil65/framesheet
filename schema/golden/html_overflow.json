@@ -1,0 +1,297 @@
+{
+  "source": "html_overflow.html",
+  "kind": "html",
+  "viewport": [
+    1280,
+    720
+  ],
+  "device_scale_factor": 1.0,
+  "canvas": [
+    0.0,
+    0.0,
+    1280.0,
+    720.0
+  ],
+  "duration": {
+    "seconds": 2.0,
+    "method": "detected",
+    "looping": true,
+    "detail": "loop period 2s (1 animation(s): css-animation)",
+    "animations": [
+      {
+        "kind": "css-animation",
+        "target": "div.badge[1] \"A label that is much to\u2026\"",
+        "name": "glow",
+        "start": 0.0,
+        "duration": 1.0,
+        "iterations": null,
+        "direction": "alternate",
+        "period": 2.0,
+        "end": null,
+        "transform_box": null
+      }
+    ]
+  },
+  "times": [
+    0.0,
+    0.1818,
+    0.3636,
+    0.5455,
+    0.7273,
+    0.9091,
+    1.0909,
+    1.2727,
+    1.4545,
+    1.6364,
+    1.8182,
+    1.9833
+  ],
+  "full_at": 0.0,
+  "images": {
+    "full": "full.png",
+    "sheet": "sheet.png",
+    "heatmap": "heatmap.png",
+    "report": "report.json"
+  },
+  "findings": [
+    {
+      "severity": "warning",
+      "code": "text-overflow",
+      "message": "div.badge[1] \"A label that is much to\u2026\" content is larger than its box (209px wider, 0px taller) at t=0.00s..1.98s (12 frames).",
+      "check": "render",
+      "element": "div.badge[1] \"A label that is much to\u2026\"",
+      "times": [
+        0.0,
+        0.1818,
+        0.3636,
+        0.5455,
+        0.7273,
+        0.9091,
+        1.0909,
+        1.2727,
+        1.4545,
+        1.6364,
+        1.8182,
+        1.9833
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "index": 0,
+      "t": 0.0,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 1,
+      "t": 0.1818,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 2,
+      "t": 0.3636,
+      "changed_ratio": 0.00207,
+      "changed_box": [
+        40.0,
+        40.0,
+        90.0,
+        24.0
+      ],
+      "path": null
+    },
+    {
+      "index": 3,
+      "t": 0.5455,
+      "changed_ratio": 0.00213,
+      "changed_box": [
+        40.0,
+        40.0,
+        90.0,
+        24.0
+      ],
+      "path": null
+    },
+    {
+      "index": 4,
+      "t": 0.7273,
+      "changed_ratio": 0.0021,
+      "changed_box": [
+        40.0,
+        40.0,
+        90.0,
+        24.0
+      ],
+      "path": null
+    },
+    {
+      "index": 5,
+      "t": 0.9091,
+      "changed_ratio": 0.00196,
+      "changed_box": [
+        40.0,
+        40.0,
+        90.0,
+        24.0
+      ],
+      "path": null
+    },
+    {
+      "index": 6,
+      "t": 1.0909,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 7,
+      "t": 1.2727,
+      "changed_ratio": 0.00196,
+      "changed_box": [
+        40.0,
+        40.0,
+        90.0,
+        24.0
+      ],
+      "path": null
+    },
+    {
+      "index": 8,
+      "t": 1.4545,
+      "changed_ratio": 0.0021,
+      "changed_box": [
+        40.0,
+        40.0,
+        90.0,
+        24.0
+      ],
+      "path": null
+    },
+    {
+      "index": 9,
+      "t": 1.6364,
+      "changed_ratio": 0.00213,
+      "changed_box": [
+        40.0,
+        40.0,
+        90.0,
+        24.0
+      ],
+      "path": null
+    },
+    {
+      "index": 10,
+      "t": 1.8182,
+      "changed_ratio": 0.00207,
+      "changed_box": [
+        40.0,
+        40.0,
+        90.0,
+        24.0
+      ],
+      "path": null
+    },
+    {
+      "index": 11,
+      "t": 1.9833,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    }
+  ],
+  "elements": [
+    {
+      "element": "div.badge[1] \"A label that is much to\u2026\"",
+      "animated_by": [
+        "css-animation"
+      ],
+      "units": "px",
+      "boxes": [
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ],
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ],
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ],
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ],
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ],
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ],
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ],
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ],
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ],
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ],
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ],
+        [
+          40.0,
+          40.0,
+          90.0,
+          24.0
+        ]
+      ]
+    }
+  ],
+  "loop": {
+    "checked": true,
+    "seamless": true,
+    "seam_ratio": 0.0,
+    "step_ratio": 0.0,
+    "seam_box": null,
+    "detail": "last frame -> first frame changes 0.00% of pixels, one normal step changes 0.00%"
+  },
+  "console_errors": []
+}

@@ -1,0 +1,314 @@
+{
+  "source": "parked_dot.svg",
+  "kind": "svg",
+  "viewport": [
+    400,
+    200
+  ],
+  "device_scale_factor": 1.0,
+  "canvas": [
+    0.0,
+    0.0,
+    400.0,
+    200.0
+  ],
+  "duration": {
+    "seconds": 3.0,
+    "method": "detected",
+    "looping": true,
+    "detail": "loop period 2s; + 1s positive begin/delay before the first loop (1 animation(s): smil)",
+    "animations": [
+      {
+        "kind": "smil",
+        "target": "circle#dot",
+        "name": "animateMotion",
+        "start": 1.0,
+        "duration": 2.0,
+        "iterations": null,
+        "direction": "normal",
+        "period": 2.0,
+        "end": null,
+        "transform_box": null
+      }
+    ]
+  },
+  "times": [
+    0.0,
+    0.2727,
+    0.5455,
+    0.8182,
+    1.0909,
+    1.3636,
+    1.6364,
+    1.9091,
+    2.1818,
+    2.4545,
+    2.7273,
+    2.9833
+  ],
+  "full_at": 0.0,
+  "images": {
+    "full": "full.png",
+    "sheet": "sheet.png",
+    "heatmap": "heatmap.png",
+    "report": "report.json"
+  },
+  "findings": [
+    {
+      "severity": "warning",
+      "code": "positive-begin",
+      "message": "<animateMotion begin='1s'> uses a positive delay; the parent shape may park at (0,0) before start. Use a negative begin offset.",
+      "check": "static",
+      "element": null,
+      "times": null
+    },
+    {
+      "severity": "warning",
+      "code": "non-seamless-loop",
+      "message": "The loop jumps at the cycle end: last frame -> first frame changes 0.37% of pixels, one normal step changes 0.00%.",
+      "check": "render",
+      "element": null,
+      "times": [
+        2.9833,
+        0.0
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "parked-at-origin",
+      "message": "circle#dot sits at the SVG origin (0,0) at t=0.00s, 0.27s, 0.55s, 0.82s; typical cause: <animateMotion> with a positive begin, or a missing x/y/cx/cy.",
+      "check": "render",
+      "element": "circle#dot",
+      "times": [
+        0.0,
+        0.2727,
+        0.5455,
+        0.8182
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "index": 0,
+      "t": 0.0,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 1,
+      "t": 0.2727,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 2,
+      "t": 0.5455,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 3,
+      "t": 0.8182,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 4,
+      "t": 1.0909,
+      "changed_ratio": 0.00344,
+      "changed_box": [
+        0.0,
+        0.0,
+        79.0,
+        99.0
+      ],
+      "path": null
+    },
+    {
+      "index": 5,
+      "t": 1.3636,
+      "changed_ratio": 0.00553,
+      "changed_box": [
+        62.0,
+        69.0,
+        55.0,
+        30.0
+      ],
+      "path": null
+    },
+    {
+      "index": 6,
+      "t": 1.6364,
+      "changed_ratio": 0.00571,
+      "changed_box": [
+        100.0,
+        69.0,
+        57.0,
+        21.0
+      ],
+      "path": null
+    },
+    {
+      "index": 7,
+      "t": 1.9091,
+      "changed_ratio": 0.00568,
+      "changed_box": [
+        100.0,
+        73.0,
+        96.0,
+        30.0
+      ],
+      "path": null
+    },
+    {
+      "index": 8,
+      "t": 2.1818,
+      "changed_ratio": 0.00585,
+      "changed_box": [
+        100.0,
+        76.0,
+        134.0,
+        42.0
+      ],
+      "path": null
+    },
+    {
+      "index": 9,
+      "t": 2.4545,
+      "changed_ratio": 0.00555,
+      "changed_box": [
+        217.0,
+        102.0,
+        56.0,
+        28.0
+      ],
+      "path": null
+    },
+    {
+      "index": 10,
+      "t": 2.7273,
+      "changed_ratio": 0.00589,
+      "changed_box": [
+        100.0,
+        76.0,
+        214.0,
+        54.0
+      ],
+      "path": null
+    },
+    {
+      "index": 11,
+      "t": 2.9833,
+      "changed_ratio": 0.00598,
+      "changed_box": [
+        100.0,
+        76.0,
+        247.0,
+        53.0
+      ],
+      "path": null
+    }
+  ],
+  "elements": [
+    {
+      "element": "circle#dot",
+      "animated_by": [
+        "smil",
+        "moved"
+      ],
+      "units": "viewBox",
+      "boxes": [
+        [
+          -8.0,
+          -8.0,
+          16.0,
+          16.0
+        ],
+        [
+          -8.0,
+          -8.0,
+          16.0,
+          16.0
+        ],
+        [
+          -8.0,
+          -8.0,
+          16.0,
+          16.0
+        ],
+        [
+          -8.0,
+          -8.0,
+          16.0,
+          16.0
+        ],
+        [
+          62.38,
+          83.09,
+          16.0,
+          16.0
+        ],
+        [
+          100.21,
+          69.19,
+          16.0,
+          16.0
+        ],
+        [
+          140.6,
+          73.75,
+          16.0,
+          16.0
+        ],
+        [
+          179.32,
+          86.96,
+          16.0,
+          16.0
+        ],
+        [
+          217.45,
+          101.9,
+          16.0,
+          16.0
+        ],
+        [
+          256.73,
+          113.22,
+          16.0,
+          16.0
+        ],
+        [
+          297.2,
+          112.57,
+          16.0,
+          16.0
+        ],
+        [
+          330.16,
+          93.8,
+          16.0,
+          16.0
+        ]
+      ]
+    }
+  ],
+  "loop": {
+    "checked": true,
+    "seamless": false,
+    "seam_ratio": 0.00374,
+    "step_ratio": 0.0,
+    "seam_box": [
+      0.0,
+      0.0,
+      347.0,
+      121.0
+    ],
+    "detail": "last frame -> first frame changes 0.37% of pixels, one normal step changes 0.00%"
+  },
+  "console_errors": []
+}

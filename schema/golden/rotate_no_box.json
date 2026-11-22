@@ -1,0 +1,297 @@
+{
+  "source": "rotate_no_box.svg",
+  "kind": "svg",
+  "viewport": [
+    400,
+    200
+  ],
+  "device_scale_factor": 1.0,
+  "canvas": [
+    0.0,
+    0.0,
+    400.0,
+    200.0
+  ],
+  "duration": {
+    "seconds": 4.0,
+    "method": "detected",
+    "looping": true,
+    "detail": "loop period 4s (1 animation(s): css-animation)",
+    "animations": [
+      {
+        "kind": "css-animation",
+        "target": "rect#spinner",
+        "name": "spin",
+        "start": 0.0,
+        "duration": 4.0,
+        "iterations": null,
+        "direction": "normal",
+        "period": 4.0,
+        "end": null,
+        "transform_box": "view-box"
+      }
+    ]
+  },
+  "times": [
+    0.0,
+    0.3636,
+    0.7273,
+    1.0909,
+    1.4545,
+    1.8182,
+    2.1818,
+    2.5455,
+    2.9091,
+    3.2727,
+    3.6364,
+    3.9833
+  ],
+  "full_at": 0.0,
+  "images": {
+    "full": "full.png",
+    "sheet": "sheet.png",
+    "heatmap": "heatmap.png",
+    "report": "report.json"
+  },
+  "findings": [
+    {
+      "severity": "warning",
+      "code": "transform-without-box",
+      "message": "CSS @keyframes animate transform/rotate/scale but no transform-box is set; SVG elements then rotate/scale around the SVG origin (0,0). Add transform-box: fill-box; transform-origin: center.",
+      "check": "static",
+      "element": null,
+      "times": null
+    },
+    {
+      "severity": "warning",
+      "code": "outside-bounds",
+      "message": "rect#spinner extends outside the viewBox at t=0.36s..3.64s (10 frames) (up to 63px bottom, 257px left, 259px top).",
+      "check": "render",
+      "element": "rect#spinner",
+      "times": [
+        0.3636,
+        0.7273,
+        1.0909,
+        1.4545,
+        1.8182,
+        2.1818,
+        2.5455,
+        2.9091,
+        3.2727,
+        3.6364
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "svg-transform-box",
+      "message": "CSS animation 'spin' on rect#spinner animates transform with transform-box: view-box (the SVG default), so it rotates/scales around the SVG origin, not the element. Add transform-box: fill-box; transform-origin: center.",
+      "check": "render",
+      "element": "rect#spinner",
+      "times": null
+    }
+  ],
+  "frames": [
+    {
+      "index": 0,
+      "t": 0.0,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 1,
+      "t": 0.3636,
+      "changed_ratio": 0.0753,
+      "changed_box": [
+        73.0,
+        70.0,
+        157.0,
+        130.0
+      ],
+      "path": null
+    },
+    {
+      "index": 2,
+      "t": 0.7273,
+      "changed_ratio": 0.03249,
+      "changed_box": [
+        0.0,
+        150.0,
+        156.0,
+        50.0
+      ],
+      "path": null
+    },
+    {
+      "index": 3,
+      "t": 1.0909,
+      "changed_ratio": 0.00219,
+      "changed_box": [
+        0.0,
+        183.0,
+        15.0,
+        17.0
+      ],
+      "path": null
+    },
+    {
+      "index": 4,
+      "t": 1.4545,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 5,
+      "t": 1.8182,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 6,
+      "t": 2.1818,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 7,
+      "t": 2.5455,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 8,
+      "t": 2.9091,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 9,
+      "t": 3.2727,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 10,
+      "t": 3.6364,
+      "changed_ratio": 0.00455,
+      "changed_box": [
+        202.0,
+        0.0,
+        39.0,
+        18.0
+      ],
+      "path": null
+    },
+    {
+      "index": 11,
+      "t": 3.9833,
+      "changed_ratio": 0.05092,
+      "changed_box": [
+        171.0,
+        0.0,
+        70.0,
+        126.0
+      ],
+      "path": null
+    }
+  ],
+  "elements": [
+    {
+      "element": "rect#spinner",
+      "animated_by": [
+        "css-animation",
+        "moved"
+      ],
+      "units": "viewBox",
+      "boxes": [
+        [
+          170.0,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          72.74,
+          150.79,
+          82.91,
+          82.91
+        ],
+        [
+          -47.64,
+          183.72,
+          79.5,
+          79.5
+        ],
+        [
+          -161.41,
+          149.77,
+          67.93,
+          67.93
+        ],
+        [
+          -248.86,
+          43.36,
+          84.64,
+          84.64
+        ],
+        [
+          -257.31,
+          -76.85,
+          74.47,
+          74.47
+        ],
+        [
+          -200.97,
+          -189.53,
+          74.47,
+          74.47
+        ],
+        [
+          -97.7,
+          -258.96,
+          84.64,
+          84.64
+        ],
+        [
+          36.56,
+          -246.16,
+          67.93,
+          67.93
+        ],
+        [
+          134.29,
+          -180.14,
+          79.5,
+          79.5
+        ],
+        [
+          180.86,
+          -65.45,
+          82.91,
+          82.91
+        ],
+        [
+          171.78,
+          63.94,
+          61.55,
+          61.55
+        ]
+      ]
+    }
+  ],
+  "loop": {
+    "checked": true,
+    "seamless": true,
+    "seam_ratio": 0.01273,
+    "step_ratio": 0.01282,
+    "seam_box": null,
+    "detail": "last frame -> first frame changes 1.27% of pixels, one normal step changes 1.28%"
+  },
+  "console_errors": []
+}

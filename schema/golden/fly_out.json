@@ -1,0 +1,300 @@
+{
+  "source": "fly_out.svg",
+  "kind": "svg",
+  "viewport": [
+    400,
+    200
+  ],
+  "device_scale_factor": 1.0,
+  "canvas": [
+    0.0,
+    0.0,
+    400.0,
+    200.0
+  ],
+  "duration": {
+    "seconds": 2.0,
+    "method": "detected",
+    "looping": true,
+    "detail": "loop period 2s (1 animation(s): css-animation)",
+    "animations": [
+      {
+        "kind": "css-animation",
+        "target": "rect#box",
+        "name": "fly",
+        "start": 0.0,
+        "duration": 2.0,
+        "iterations": null,
+        "direction": "normal",
+        "period": 2.0,
+        "end": null,
+        "transform_box": "fill-box"
+      }
+    ]
+  },
+  "times": [
+    0.0,
+    0.1818,
+    0.3636,
+    0.5455,
+    0.7273,
+    0.9091,
+    1.0909,
+    1.2727,
+    1.4545,
+    1.6364,
+    1.8182,
+    1.9833
+  ],
+  "full_at": 0.0,
+  "images": {
+    "full": "full.png",
+    "sheet": "sheet.png",
+    "heatmap": "heatmap.png",
+    "report": "report.json"
+  },
+  "findings": [
+    {
+      "severity": "warning",
+      "code": "outside-bounds",
+      "message": "rect#box extends outside the viewBox at t=0.73s, 0.91s, 1.09s, 1.27s (up to 74px right).",
+      "check": "render",
+      "element": "rect#box",
+      "times": [
+        0.7273,
+        0.9091,
+        1.0909,
+        1.2727
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "index": 0,
+      "t": 0.0,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 1,
+      "t": 0.1818,
+      "changed_ratio": 0.03944,
+      "changed_box": [
+        40.0,
+        70.0,
+        86.0,
+        60.0
+      ],
+      "path": null
+    },
+    {
+      "index": 2,
+      "t": 0.3636,
+      "changed_ratio": 0.09099,
+      "changed_box": [
+        65.0,
+        70.0,
+        140.0,
+        60.0
+      ],
+      "path": null
+    },
+    {
+      "index": 3,
+      "t": 0.5455,
+      "changed_ratio": 0.09099,
+      "changed_box": [
+        144.0,
+        70.0,
+        176.0,
+        60.0
+      ],
+      "path": null
+    },
+    {
+      "index": 4,
+      "t": 0.7273,
+      "changed_ratio": 0.07462,
+      "changed_box": [
+        259.0,
+        70.0,
+        141.0,
+        60.0
+      ],
+      "path": null
+    },
+    {
+      "index": 5,
+      "t": 0.9091,
+      "changed_ratio": 0.02913,
+      "changed_box": [
+        361.0,
+        70.0,
+        39.0,
+        60.0
+      ],
+      "path": null
+    },
+    {
+      "index": 6,
+      "t": 1.0909,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 7,
+      "t": 1.2727,
+      "changed_ratio": 0.02913,
+      "changed_box": [
+        361.0,
+        70.0,
+        39.0,
+        60.0
+      ],
+      "path": null
+    },
+    {
+      "index": 8,
+      "t": 1.4545,
+      "changed_ratio": 0.07462,
+      "changed_box": [
+        259.0,
+        70.0,
+        141.0,
+        60.0
+      ],
+      "path": null
+    },
+    {
+      "index": 9,
+      "t": 1.6364,
+      "changed_ratio": 0.09099,
+      "changed_box": [
+        144.0,
+        70.0,
+        176.0,
+        60.0
+      ],
+      "path": null
+    },
+    {
+      "index": 10,
+      "t": 1.8182,
+      "changed_ratio": 0.09099,
+      "changed_box": [
+        65.0,
+        70.0,
+        140.0,
+        60.0
+      ],
+      "path": null
+    },
+    {
+      "index": 11,
+      "t": 1.9833,
+      "changed_ratio": 0.03943,
+      "changed_box": [
+        40.0,
+        70.0,
+        86.0,
+        60.0
+      ],
+      "path": null
+    }
+  ],
+  "elements": [
+    {
+      "element": "rect#box",
+      "animated_by": [
+        "css-animation",
+        "moved"
+      ],
+      "units": "viewBox",
+      "boxes": [
+        [
+          40.0,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          65.5,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          144.7,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          259.65,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          361.36,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          413.83,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          413.83,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          361.36,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          259.65,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          144.7,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          65.5,
+          70.0,
+          60.0,
+          60.0
+        ],
+        [
+          40.2,
+          70.0,
+          60.0,
+          60.0
+        ]
+      ]
+    }
+  ],
+  "loop": {
+    "checked": true,
+    "seamless": true,
+    "seam_ratio": 0.00178,
+    "step_ratio": 0.00178,
+    "seam_box": null,
+    "detail": "last frame -> first frame changes 0.18% of pixels, one normal step changes 0.18%"
+  },
+  "console_errors": []
+}

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -17,6 +17,55 @@ SourceKind = Literal["svg", "html"]
 ColorScheme = Literal["light", "dark"]
 Rect = tuple[float, float, float, float]
 """An axis-aligned box as ``(x, y, width, height)``."""
+
+
+FINDING_CODES: dict[str, tuple[Severity, Literal["static", "render"], str]] = {
+    # Static checks (checks.py): source text.
+    "malformed-xml": ("error", "static", "The SVG is not well-formed XML."),
+    "not-svg": ("error", "static", "The root element is not <svg>."),
+    "missing-xmlns": ("error", "static", "The root <svg> lacks the SVG namespace."),
+    "missing-viewbox": ("error", "static", "The root <svg> has no viewBox."),
+    "missing-title": ("warning", "static", "No aria-label or <title>."),
+    "script": ("error", "static", "Contains <script>."),
+    "foreign-object": ("warning", "static", "Contains <foreignObject>."),
+    "event-handler": ("error", "static", "Inline on* event handler attribute."),
+    "external-url": ("warning", "static", "External http(s) URL in an attribute."),
+    "positive-begin": ("warning", "static", "<animateMotion> with a positive begin."),
+    "duplicate-id": ("error", "static", "The same id is used more than once."),
+    "broken-ref": ("error", "static", "#id / url(#id) reference without a matching id."),
+    "css-external": ("warning", "static", "CSS references an external URL or font."),
+    "no-reduced-motion": ("warning", "static", "CSS animations without prefers-reduced-motion."),
+    "transform-origin-without-box": (
+        "warning",
+        "static",
+        "CSS transform-origin without transform-box in SVG.",
+    ),
+    "transform-without-box": (
+        "warning",
+        "static",
+        "@keyframes animate transforms in SVG without transform-box.",
+    ),
+    "large-file": ("warning", "static", "SVG larger than 100 KB."),
+    # Render checks (analysis.py, core.py): pixels and geometry over time.
+    "parked-at-origin": ("warning", "render", "Small SVG element sits at the origin (0,0)."),
+    "outside-bounds": ("warning", "render", "Element extends outside the viewBox/viewport."),
+    "text-overflow": ("warning", "render", "Text larger than its container."),
+    "svg-transform-box": (
+        "warning",
+        "render",
+        "CSS transform animation pivots around the SVG origin.",
+    ),
+    "non-seamless-loop": ("warning", "render", "The loop jumps at the cycle end."),
+    "js-driven-motion": ("warning", "render", "Pixels change without declarative animations."),
+    "no-visible-motion": ("info", "render", "Animations declared but no pixel changed."),
+    "no-motion": ("info", "render", "No animation and no pixel change."),
+    "console-error": ("warning", "render", "console.error or uncaught page error."),
+}
+"""Every finding code (API: stable, kebab-case) -> (usual severity, check, meaning).
+
+Both implementations (Python and npm) may only emit these; the shared JSON Schema
+(``schema/report.schema.json``) pins them as an enum. Add new codes here first.
+"""
 
 
 def as_rect(values: Sequence[float]) -> Rect:
@@ -193,3 +242,37 @@ class InspectionResult(BaseModel):
             f"  report   {self.images.report}",
         ]
         return "\n".join(lines)
+
+
+def report_schema() -> dict[str, Any]:
+    """JSON Schema of ``report.json``, shared with the npm package (``schema/``).
+
+    Generated from :class:`InspectionResult` in serialization mode; every object is closed
+    (``additionalProperties: false``) and every field required, because both
+    implementations always write all fields (``null`` for unset ones).
+    """
+
+    def close(node: Any) -> None:
+        if isinstance(node, dict):
+            if node.get("type") == "object" and "properties" in node:
+                node["additionalProperties"] = False
+                node["required"] = list(node["properties"])
+            for value in node.values():
+                close(value)
+        elif isinstance(node, list):
+            for value in node:
+                close(value)
+
+    schema = InspectionResult.model_json_schema(mode="serialization")
+    close(schema)
+    code = schema["$defs"]["Finding"]["properties"]["code"]
+    code["enum"] = list(FINDING_CODES)
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://github.com/phil65/framesheet/schema/report.schema.json",
+        **schema,
+        "x-finding-codes": {
+            name: {"severity": severity, "check": check, "description": text}
+            for name, (severity, check, text) in FINDING_CODES.items()
+        },
+    }

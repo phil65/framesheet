@@ -1,0 +1,281 @@
+{
+  "source": "finite.svg",
+  "kind": "svg",
+  "viewport": [
+    300,
+    120
+  ],
+  "device_scale_factor": 2.0,
+  "canvas": [
+    0.0,
+    0.0,
+    300.0,
+    120.0
+  ],
+  "duration": {
+    "seconds": 2.0,
+    "method": "detected",
+    "looping": false,
+    "detail": "finite animations end at 2s (1 animation(s): smil)",
+    "animations": [
+      {
+        "kind": "smil",
+        "target": "rect#bar",
+        "name": "animate:width",
+        "start": 0.5,
+        "duration": 1.5,
+        "iterations": 1.0,
+        "direction": "normal",
+        "period": 1.5,
+        "end": 2.0,
+        "transform_box": null
+      }
+    ]
+  },
+  "times": [
+    0.0,
+    0.1818,
+    0.3636,
+    0.5455,
+    0.7273,
+    0.9091,
+    1.0909,
+    1.2727,
+    1.4545,
+    1.6364,
+    1.8182,
+    1.9833
+  ],
+  "full_at": 0.0,
+  "images": {
+    "full": "full.png",
+    "sheet": "sheet.png",
+    "heatmap": "heatmap.png",
+    "report": "report.json"
+  },
+  "findings": [],
+  "frames": [
+    {
+      "index": 0,
+      "t": 0.0,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 1,
+      "t": 0.1818,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 2,
+      "t": 0.3636,
+      "changed_ratio": 0.0,
+      "changed_box": null,
+      "path": null
+    },
+    {
+      "index": 3,
+      "t": 0.5455,
+      "changed_ratio": 0.00667,
+      "changed_box": [
+        20.0,
+        45.0,
+        8.0,
+        30.0
+      ],
+      "path": null
+    },
+    {
+      "index": 4,
+      "t": 0.7273,
+      "changed_ratio": 0.02667,
+      "changed_box": [
+        27.5,
+        45.0,
+        32.0,
+        30.0
+      ],
+      "path": null
+    },
+    {
+      "index": 5,
+      "t": 0.9091,
+      "changed_ratio": 0.02667,
+      "changed_box": [
+        59.0,
+        45.0,
+        32.0,
+        30.0
+      ],
+      "path": null
+    },
+    {
+      "index": 6,
+      "t": 1.0909,
+      "changed_ratio": 0.02667,
+      "changed_box": [
+        90.5,
+        45.0,
+        32.0,
+        30.0
+      ],
+      "path": null
+    },
+    {
+      "index": 7,
+      "t": 1.2727,
+      "changed_ratio": 0.02667,
+      "changed_box": [
+        122.0,
+        45.0,
+        32.0,
+        30.0
+      ],
+      "path": null
+    },
+    {
+      "index": 8,
+      "t": 1.4545,
+      "changed_ratio": 0.02667,
+      "changed_box": [
+        153.5,
+        45.0,
+        32.0,
+        30.0
+      ],
+      "path": null
+    },
+    {
+      "index": 9,
+      "t": 1.6364,
+      "changed_ratio": 0.02667,
+      "changed_box": [
+        185.0,
+        45.0,
+        32.0,
+        30.0
+      ],
+      "path": null
+    },
+    {
+      "index": 10,
+      "t": 1.8182,
+      "changed_ratio": 0.02667,
+      "changed_box": [
+        216.5,
+        45.0,
+        32.0,
+        30.0
+      ],
+      "path": null
+    },
+    {
+      "index": 11,
+      "t": 1.9833,
+      "changed_ratio": 0.02417,
+      "changed_box": [
+        248.5,
+        45.0,
+        29.0,
+        30.0
+      ],
+      "path": null
+    }
+  ],
+  "elements": [
+    {
+      "element": "rect#bar",
+      "animated_by": [
+        "smil",
+        "moved"
+      ],
+      "units": "viewBox",
+      "boxes": [
+        [
+          20.0,
+          45.0,
+          0.0,
+          30.0
+        ],
+        [
+          20.0,
+          45.0,
+          0.0,
+          30.0
+        ],
+        [
+          20.0,
+          45.0,
+          0.0,
+          30.0
+        ],
+        [
+          20.0,
+          45.0,
+          7.89,
+          30.0
+        ],
+        [
+          20.0,
+          45.0,
+          39.4,
+          30.0
+        ],
+        [
+          20.0,
+          45.0,
+          70.91,
+          30.0
+        ],
+        [
+          20.0,
+          45.0,
+          102.42,
+          30.0
+        ],
+        [
+          20.0,
+          45.0,
+          133.93,
+          30.0
+        ],
+        [
+          20.0,
+          45.0,
+          165.45,
+          30.0
+        ],
+        [
+          20.0,
+          45.0,
+          196.98,
+          30.0
+        ],
+        [
+          20.0,
+          45.0,
+          228.49,
+          30.0
+        ],
+        [
+          20.0,
+          45.0,
+          257.11,
+          30.0
+        ]
+      ]
+    }
+  ],
+  "loop": {
+    "checked": false,
+    "seamless": null,
+    "seam_ratio": null,
+    "step_ratio": null,
+    "seam_box": null,
+    "detail": "finite animation (does not repeat)"
+  },
+  "console_errors": []
+}
