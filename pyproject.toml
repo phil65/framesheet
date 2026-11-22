@@ -2,7 +2,7 @@
 
 [project]
 name = "framesheet"
-version = "0.1.1"
+version = "0.2.0"
 description = "Frame-accurate contact sheets and motion maps for animated SVG and HTML, for humans and AI agents"
 readme = "README.md"
 requires-python = ">=3.13"
