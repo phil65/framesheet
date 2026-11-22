@@ -128,7 +128,9 @@ class Session:
                 else None
             ),
         )
-        page.clock.install(time=_EPOCH)
+        # pause_at() installs the fake clock itself. A separate install() first would let
+        # the real time between the two calls leak into performance.now() (Playwright
+        # replays that interval as running time), shifting rAF-driven frames per run.
         page.clock.pause_at(_EPOCH + dt.timedelta(seconds=1))
         self._page = page
         return self

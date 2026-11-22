@@ -168,6 +168,19 @@ def test_deterministic_output(tmp_path):
         assert getattr(a.images, name).read_bytes() == getattr(b.images, name).read_bytes(), name
 
 
+def test_deterministic_js_driven_output(tmp_path):
+    """rAF/canvas frames depend on the fake clock's tick origin: it must not drift."""
+    runs = [
+        framesheet.inspect(
+            FIXTURES / "raf_canvas.html", frames=4, heat_frames=0, out=tmp_path / name
+        )
+        for name in ("a", "b")
+    ]
+    a, b = (r.images.sheet.read_bytes() for r in runs)
+    assert a == b
+    assert [f.changed_ratio for f in runs[0].frames] == [f.changed_ratio for f in runs[1].frames]
+
+
 def test_snippet_and_size(tmp_path):
     svg = (
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50"><title>x</title>'
