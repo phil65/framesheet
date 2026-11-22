@@ -1,0 +1,80 @@
+{
+  "name": "framesheet",
+  "version": "0.1.0",
+  "description": "Frame-accurate contact sheets, motion heatmaps and checks for animated SVG/HTML and running web apps, for humans and AI agents (Playwright)",
+  "keywords": [
+    "animation",
+    "svg",
+    "playwright",
+    "visual-regression",
+    "contact-sheet",
+    "smil",
+    "web-animations",
+    "ai-agent"
+  ],
+  "homepage": "https://github.com/phil65/framesheet/tree/main/js#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phil65/framesheet.git",
+    "directory": "js"
+  },
+  "bugs": "https://github.com/phil65/framesheet/issues",
+  "license": "MIT",
+  "author": "Philipp Temminghoff",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./test": {
+      "types": "./dist/test.d.ts",
+      "default": "./dist/test.js"
+    },
+    "./schema/report.schema.json": "./dist/report.schema.json",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "generate": "node scripts/embed-assets.mjs",
+    "build": "node scripts/embed-assets.mjs && rm -rf dist && tsc -p tsconfig.build.json && node scripts/copy-schema.mjs",
+    "typecheck": "node scripts/embed-assets.mjs && tsc -p tsconfig.json --noEmit",
+    "check:runtime": "node scripts/check-runtime.mjs",
+    "test": "node scripts/embed-assets.mjs && vitest run",
+    "test:e2e": "playwright test -c e2e/playwright.config.ts",
+    "golden": "cd .. && uv run --no-sync python scripts/golden_reports.py",
+    "prepack": "npm run build && node scripts/check-runtime.mjs"
+  },
+  "dependencies": {
+    "pngjs": "^7.0.0"
+  },
+  "peerDependencies": {
+    "@playwright/test": ">=1.45.0",
+    "playwright-core": ">=1.45.0"
+  },
+  "peerDependenciesMeta": {
+    "@playwright/test": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1",
+    "@types/node": "^22.19.0",
+    "@types/pngjs": "^6.0.5",
+    "ajv": "^8.17.1",
+    "playwright-core": "1.65.1",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
+  }
+}

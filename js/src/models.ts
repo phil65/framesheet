@@ -1,0 +1,130 @@
+/**
+ * Report types: the same shape as the Python package's `report.json`
+ * (`framesheet.models.InspectionResult`), checked against ../schema/report.schema.json.
+ * Field names are snake_case on purpose: one schema for both implementations.
+ */
+
+export type Severity = "error" | "warning" | "info";
+export type SourceKind = "svg" | "html";
+export type ColorScheme = "light" | "dark";
+/** An axis-aligned box as `[x, y, width, height]`. */
+export type Rect = [number, number, number, number];
+
+/** A single problem (or noteworthy fact) found by a static or render check. */
+export interface Finding {
+  severity: Severity;
+  /** Stable, kebab-case identifier, e.g. `parked-at-origin` (see schema/finding-codes.json). */
+  code: string;
+  message: string;
+  check: "static" | "render";
+  /** Human-readable element label such as `circle#dot` or `text[2] "Hello"`. */
+  element: string | null;
+  /** Sample times (seconds) at which the problem was observed. */
+  times: number[] | null;
+}
+
+export type AnimationKind = "smil" | "css-animation" | "css-transition" | "web-animation";
+
+/** Timing of one declarative animation, as reported by the browser. */
+export interface AnimationTiming {
+  kind: AnimationKind;
+  target: string | null;
+  name: string | null;
+  /** Begin / delay in seconds (may be negative). */
+  start: number;
+  /** Duration of one iteration in seconds. */
+  duration: number;
+  /** Iteration count; `null` means infinite. */
+  iterations: number | null;
+  direction: string;
+  /** Seconds until the animation looks the same again (2x duration for alternate). */
+  period: number;
+  /** End of the active interval in seconds; `null` if infinite. */
+  end: number | null;
+  /** Computed `transform-box` of an SVG target whose transform is animated by CSS. */
+  transform_box: string | null;
+}
+
+export interface DurationInfo {
+  seconds: number;
+  method: "override" | "detected" | "fallback";
+  /** True if at least one animation repeats forever (or motion is JS-driven). */
+  looping: boolean;
+  detail: string;
+  animations: AnimationTiming[];
+}
+
+export interface FrameMetrics {
+  index: number;
+  t: number;
+  /** Share of pixels that differ from the previous frame (0 for the first frame). */
+  changed_ratio: number;
+  /** Bounding box (CSS px) of the pixels that changed vs. the previous frame. */
+  changed_box: Rect | null;
+  /** Path of the individual frame PNG, if frames were written. */
+  path: string | null;
+}
+
+export interface ElementTrack {
+  element: string;
+  /** `smil`, `css-animation`, `web-animation` and/or `moved` (geometry changed). */
+  animated_by: string[];
+  units: "viewBox" | "px";
+  /** One box per frame (`null` if not rendered at that frame). */
+  boxes: (Rect | null)[];
+}
+
+export interface LoopInfo {
+  checked: boolean;
+  seamless: boolean | null;
+  /** Changed-pixel share between `t=end-epsilon` and `t=0`. */
+  seam_ratio: number | null;
+  /** Changed-pixel share between `t=0` and `t=epsilon` (normal motion per step). */
+  step_ratio: number | null;
+  seam_box: Rect | null;
+  detail: string;
+}
+
+/** Image paths. Absolute when written to disk (`out`), else bare file names. */
+export interface ImagePaths {
+  full: string;
+  sheet: string;
+  heatmap: string;
+  report: string;
+}
+
+/** Everything framesheet found out about one input: the content of `report.json`. */
+export interface Report {
+  source: string;
+  kind: SourceKind;
+  viewport: [number, number];
+  device_scale_factor: number;
+  /** Drawing area in CSS px (viewBox for SVG documents/components, viewport for HTML). */
+  canvas: Rect;
+  duration: DurationInfo;
+  /** Sample times of the contact-sheet tiles in seconds. */
+  times: number[];
+  full_at: number;
+  images: ImagePaths;
+  findings: Finding[];
+  frames: FrameMetrics[];
+  elements: ElementTrack[];
+  loop: LoopInfo;
+  console_errors: string[];
+}
+
+/** PNG bytes of the three images (plus every sampled frame if requested). */
+export interface ImageBuffers {
+  /** One full-resolution frame at `fullAt` (default t=0): layout, text, margins. */
+  full: Buffer;
+  /** Contact sheet: N labelled frames over one cycle. */
+  sheet: Buffer;
+  /** Motion heatmap: what moves at all, over a dimmed first frame. */
+  heatmap: Buffer;
+  /** Every contact-sheet frame (only with `keepFrames`). */
+  frames?: Buffer[];
+}
+
+export function asRect(values: ArrayLike<number>): Rect {
+  return [Number(values[0]), Number(values[1]), Number(values[2]), Number(values[3])];
+}
