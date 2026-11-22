@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" role="img" aria-label="Spinner pivoting around the origin">
+  <title>Rotation without transform-box</title>
+  <style>
+    /* Bug: no transform-box: fill-box, so the square orbits the SVG origin instead of spinning. */
+    #spinner { animation: spin 4s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { #spinner { animation: none; } }
+  </style>
+  <rect width="400" height="200" fill="#fdf2f8"/>
+  <rect id="spinner" x="170" y="70" width="60" height="60" fill="#db2777"/>
+</svg>

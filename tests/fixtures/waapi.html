@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Web Animations</title>
+<style>
+  body { margin: 0; background: #fff; }
+  .bar { position: absolute; left: 40px; top: 40px; width: 80px; height: 40px; background: #2563eb; }
+  @media (prefers-reduced-motion: reduce) { .bar { animation: none; } }
+</style></head>
+<body>
+<div class="bar" id="bar"></div>
+<script>
+  document.getElementById("bar").animate(
+    [{ transform: "translateX(0)" }, { transform: "translateX(300px)" }],
+    { duration: 1500, iterations: Infinity, direction: "alternate", easing: "ease-in-out" },
+  );
+</script>
+</body></html>

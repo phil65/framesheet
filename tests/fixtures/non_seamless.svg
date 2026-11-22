@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" role="img" aria-label="Loop that jumps">
+  <title>Non-seamless loop</title>
+  <style>
+    #runner { transform-box: fill-box; animation: run 3s linear infinite; }
+    /* Bug: ends at x+240 and snaps back to the start on every iteration. */
+    @keyframes run { from { transform: translateX(0); } to { transform: translateX(240px); } }
+    @media (prefers-reduced-motion: reduce) { #runner { animation: none; } }
+  </style>
+  <rect width="400" height="200" fill="#fefce8"/>
+  <circle id="runner" cx="60" cy="100" r="24" fill="#ca8a04"/>
+</svg>

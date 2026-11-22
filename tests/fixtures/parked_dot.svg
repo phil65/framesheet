@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" role="img" aria-label="Dot parked at the origin">
+  <title>Parked dot</title>
+  <defs><path id="pd-wire" d="M 60 100 C 140 20, 260 180, 340 100"/></defs>
+  <rect width="400" height="200" fill="#0f172a"/>
+  <use href="#pd-wire" fill="none" stroke="#334155" stroke-width="3"/>
+  <!-- Bug: positive begin, so the dot sits at (0,0) for the first second. -->
+  <circle id="dot" r="8" fill="#f59e0b">
+    <animateMotion dur="2s" begin="1s" repeatCount="indefinite"><mpath href="#pd-wire"/></animateMotion>
+  </circle>
+</svg>

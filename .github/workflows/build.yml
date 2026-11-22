@@ -38,6 +38,10 @@ jobs:
       - name: Install dependencies (uv sync)
         run: uv sync --all-extras --no-group docs
 
+      # Project-specific: the tests drive a real Chromium through Playwright.
+      - name: Install Chromium for Playwright
+        run: uv run --no-group docs playwright install --with-deps chromium
+
       # ruff / ty come from the pinned `lint` group, same versions as pre-commit.
       - name: Check for code issues (ruff check)
         run: uv run --no-group docs ruff check .

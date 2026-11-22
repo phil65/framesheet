@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 260" role="img" aria-labelledby="pl-title">
+  <title id="pl-title">framesheet pipeline: animation in, frames out</title>
+  <style>
+    .pl-card { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+    .pl-label { font: 600 17px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #0f172a; }
+    .pl-sub { font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #475569; }
+    .pl-wire { fill: none; stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 5 5; }
+    .pl-hub { transform-box: fill-box; transform-origin: center; animation: pl-pulse 2s ease-in-out infinite; }
+    .pl-spin { transform-box: fill-box; transform-origin: center; animation: pl-spin 4s linear infinite; }
+    @keyframes pl-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+    @keyframes pl-spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .pl-hub, .pl-spin { animation: none; } }
+  </style>
+  <defs>
+    <path id="pl-in" d="M 212 130 L 284 130"/>
+    <path id="pl-out" d="M 436 130 L 508 130"/>
+  </defs>
+  <rect width="720" height="260" rx="16" fill="#f1f5f9"/>
+
+  <rect class="pl-card" x="40" y="90" width="172" height="80" rx="10"/>
+  <text class="pl-label" x="58" y="124">animation.svg</text>
+  <text class="pl-sub" x="58" y="148">SMIL · CSS · rAF</text>
+
+  <g class="pl-hub">
+    <rect x="284" y="78" width="152" height="104" rx="14" fill="#4f46e5"/>
+    <text x="360" y="126" text-anchor="middle" class="pl-label" style="fill:#ffffff">framesheet</text>
+    <text x="360" y="150" text-anchor="middle" class="pl-sub" style="fill:#c7d2fe">virtual clock</text>
+  </g>
+  <g transform="translate(404 92)">
+    <rect class="pl-spin" x="-7" y="-7" width="14" height="14" rx="3" fill="#a5b4fc"/>
+  </g>
+
+  <rect class="pl-card" x="508" y="90" width="172" height="80" rx="10"/>
+  <text class="pl-label" x="526" y="124">sheet + heatmap</text>
+  <text class="pl-sub" x="526" y="148">full · sheet · report</text>
+
+  <use href="#pl-in" class="pl-wire"/>
+  <use href="#pl-out" class="pl-wire"/>
+  <circle r="6" fill="#f59e0b">
+    <animateMotion dur="2s" begin="-0.5s" repeatCount="indefinite"><mpath href="#pl-in"/></animateMotion>
+  </circle>
+  <circle r="6" fill="#10b981">
+    <animateMotion dur="2s" begin="-1.5s" repeatCount="indefinite"><mpath href="#pl-out"/></animateMotion>
+  </circle>
+</svg>

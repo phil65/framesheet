@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 120" role="img" aria-label="One-shot reveal">
+  <title>Finite reveal</title>
+  <rect width="300" height="120" fill="#ffffff"/>
+  <rect id="bar" x="20" y="45" width="0" height="30" fill="#16a34a">
+    <animate attributeName="width" from="0" to="260" begin="0.5s" dur="1.5s" fill="freeze"/>
+  </rect>
+</svg>
