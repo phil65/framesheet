@@ -1,5 +1,7 @@
 // framesheet in-page runtime. Evaluated once after load; exposes window.__framesheet.
 // Everything returns plain JSON so the Python side stays simple.
+// Shared by both implementations: the Python package loads this file as package data and
+// the npm package (js/) embeds a byte-identical copy at build time (checked in CI).
 (() => {
   if (window.__framesheet) return;
 
@@ -14,7 +16,16 @@
   ]);
   const MAX_ELEMENTS = 4000;
   const births = new WeakMap();
+  const wasRunning = new WeakSet();
+  const pausedSvgs = new Set();
   const labels = new WeakMap();
+  // Optional subtree (one component of a running app). null = the whole document, which is
+  // all the Python CLI uses. Time is always global; the scope limits what is measured.
+  let scopeEl = null;
+
+  function inScope(el) {
+    return !scopeEl || (!!el && scopeEl.contains(el));
+  }
 
   let nth = null;
   function countTags() {
@@ -138,10 +149,12 @@
     const out = [];
     for (const el of document.querySelectorAll(SMIL_SELECTOR)) {
       if (!(el instanceof SVGElement)) continue;
+      if (!inScope(el.targetElement || el.parentElement)) continue;
       const t = smilTiming(el);
       if (t) out.push(t);
     }
     for (const a of document.getAnimations()) {
+      if (!inScope(a.effect && a.effect.target)) continue;
       const t = waapiTiming(a);
       if (t) out.push(t);
     }
@@ -151,6 +164,7 @@
   function seek(t) {
     for (const svg of outerSvgRoots()) {
       if (svg.pauseAnimations) {
+        if (!svg.animationsPaused()) pausedSvgs.add(svg);
         svg.pauseAnimations();
         svg.setCurrentTime(t);
       }
@@ -158,7 +172,10 @@
     for (const a of document.getAnimations()) {
       // Animations created later by script (class toggles, el.animate()) start at the
       // virtual time they were first seen, so their local time stays consistent.
-      if (!births.has(a)) births.set(a, t);
+      if (!births.has(a)) {
+        births.set(a, t);
+        if (a.playState === "running") wasRunning.add(a);
+      }
       a.pause();
       a.currentTime = Math.max(0, t - births.get(a)) * 1000;
     }
@@ -167,9 +184,25 @@
     return true;
   }
 
+  // Outermost <svg> whose user space the scope's geometry is measured in (or null).
+  function scopeSvg() {
+    if (!scopeEl) return isSvgDoc ? document.documentElement : null;
+    let root = scopeEl instanceof SVGElement ? (scopeEl.ownerSVGElement || scopeEl) : null;
+    if (!root) {
+      const inner = [...scopeEl.querySelectorAll("svg")].filter((s) => !s.ownerSVGElement);
+      root = inner.length === 1 ? inner[0] : null;
+    }
+    while (root && root.ownerSVGElement) root = root.ownerSVGElement;
+    return root;
+  }
+
   function canvasRect() {
-    if (isSvgDoc) {
-      const root = document.documentElement;
+    if (scopeEl && !(scopeEl instanceof SVGSVGElement)) {
+      const r = scopeEl.getBoundingClientRect();
+      return [r.x, r.y, r.width, r.height];
+    }
+    if (isSvgDoc || scopeEl) {
+      const root = scopeEl || document.documentElement;
       const vb = root.viewBox && root.viewBox.baseVal;
       const ctm = root.getScreenCTM();
       if (vb && vb.width > 0 && vb.height > 0 && ctm) {
@@ -184,10 +217,11 @@
   }
 
   function viewBox() {
-    if (!isSvgDoc) return null;
-    const vb = document.documentElement.viewBox && document.documentElement.viewBox.baseVal;
+    const root = scopeSvg();
+    if (!root) return null;
+    const vb = root.viewBox && root.viewBox.baseVal;
     if (vb && vb.width > 0 && vb.height > 0) return [vb.x, vb.y, vb.width, vb.height];
-    const r = document.documentElement.getBoundingClientRect();
+    const r = root.getBoundingClientRect();
     return [0, 0, r.width, r.height];
   }
 
@@ -229,7 +263,8 @@
   function elements() {
     if (!elementList) {
       elementList = [];
-      for (const el of document.querySelectorAll("*")) {
+      const all = scopeEl ? [scopeEl, ...scopeEl.querySelectorAll("*")] : document.querySelectorAll("*");
+      for (const el of all) {
         if (elementList.length >= MAX_ELEMENTS) break;
         const tag = el.tagName.toLowerCase();
         if (tag === "html" || tag === "body" || el === document.documentElement) continue;
@@ -315,8 +350,28 @@
     return true;
   }
 
+  // Limit measuring to one element's subtree (npm inspectPage({ locator })). Call before
+  // anything else; the Python package never calls it.
+  function scope(el) {
+    scopeEl = el || null;
+    elementList = null;
+    indexOf = null;
+    return true;
+  }
+
+  // Hand the page back after an inspection of a running app: unpause what seek() paused.
+  function resume() {
+    for (const svg of pausedSvgs) if (svg.isConnected) svg.unpauseAnimations();
+    pausedSvgs.clear();
+    for (const a of document.getAnimations()) {
+      if (wasRunning.has(a) && a.playState === "paused") a.play();
+    }
+    return true;
+  }
+
   window.__framesheet = {
     isSvgDoc, timings, seek, settle, measure, describe, animatedTargets, canvasRect, viewBox, htmlOverflow, ready,
+    scope, resume,
     hasScript: () => document.querySelectorAll("script").length > 0,
     canvasCount: () => document.querySelectorAll("canvas").length,
   };
