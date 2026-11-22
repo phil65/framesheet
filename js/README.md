@@ -52,11 +52,44 @@ of `full`), `size` (`[w, h]`), `scale`, `tile`, `columns`, `heatFrames` (default
 `keepFrames`, `colorScheme`, `out` (write `full.png`, `sheet.png`, `heatmap.png`,
 `report.json`; without it nothing touches the disk), `timeout` (ms), `browser` (reuse a
 launched `Browser`; a fresh context is used per call), `launchOptions`, `blockNetwork`
-(abort every request except the input: use it for untrusted markup).
+(abort every request except the input: use it for untrusted markup). Videos only: `every`,
+`times`, `start`, `end`, `marks`, `staticStretch` (see below).
 
 The result is an `Inspection`: `report`, `images` (`full`, `sheet`, `heatmap`,
 `frames?`), `files` (paths, with `out`), `findings`, `errors`, `warnings`, `codes()`,
 `summary()`. Output is deterministic: same input, same environment, same PNG bytes.
+
+## Videos and animated images
+
+`inspect()` also takes `.mp4`, `.mov`, `.webm`, `.mkv` and animated `.gif`/`.webp` (path
+or URL). Same images and report, plus a timeline strip under the sheet and a `video`
+section in the report (same schema as Python):
+
+```ts
+const r = await inspect("demo.mp4", {
+  every: 1,                 // or frames: 12, or times: [1.2, 3.4] / "marks"
+  start: 0, end: 15,        // range (default: the whole media)
+  marks: "marks.json",      // or an object; validated (framesheet/schema/marks.schema.json)
+  staticStretch: 1.5,       // seconds without change reported as video-static-stretch
+  launchOptions: { channel: "chrome" }, // only if your Chromium lacks H.264
+});
+r.report.video!.tiles;      // media_time, black, blank, duplicate, sharpness, marks per tile
+r.report.video!.samples;    // dense pacing samples: t, changed_ratio
+```
+
+Findings: `video-static-stretch`, `video-black-frames`, `video-blank-frames`,
+`video-abrupt-cut` (info), `video-mark-overlap` (a span box, e.g. a caption, covers an
+active `target` region box). Frames are seeked exactly: `<video>` `currentTime` + `seeked`
++ `requestVideoFrameCallback`, animated images via WebCodecs `ImageDecoder`; the frame is
+drawn on a canvas filling the viewport (shared `video.js`, byte-identical to the Python
+package's). No ffmpeg. Playwright's Chromium always decodes VP8/VP9/AV1, GIF and WebP;
+H.264/HEVC depend on the build (re-encode to VP9 or use `channel: "chrome"`).
+
+Marks schema, the timeline and the "demo video optimization loop" (what to look for in
+the sheet, heatmap, timeline and report) are documented in the
+[main README](https://github.com/phil65/framesheet#video-input). Helpers for tools that
+write marks: `parseMarks`, `loadMarks`, `MarksError`, `planTimes`, `probe` (container
+facts without a browser).
 
 ## `inspectPage()`: a page or component you already have open
 
@@ -187,7 +220,9 @@ Static (source text; `inspect()` only by default): `malformed-xml`, `not-svg`,
 `transform-without-box`, `large-file`. Render (geometry and pixels over time):
 `parked-at-origin`, `outside-bounds`, `text-overflow`, `svg-transform-box`,
 `non-seamless-loop`, `js-driven-motion`, `no-visible-motion`, `no-motion`,
-`console-error`. Codes are API; the schema pins them.
+`console-error`. Video: `video-static-stretch`, `video-black-frames`,
+`video-blank-frames`, `video-abrupt-cut`, `video-mark-overlap`. Codes are API; the schema
+pins them.
 
 ## Development
 

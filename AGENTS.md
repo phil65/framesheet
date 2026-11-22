@@ -1,8 +1,9 @@
 # AGENTS.md: framesheet
 
 framesheet renders animated SVG/HTML at exact virtual times with Playwright (Chromium)
-and writes `full.png`, `sheet.png`, `heatmap.png` and `report.json`. See README.md for
-user-facing docs.
+and writes `full.png`, `sheet.png`, `heatmap.png` and `report.json`. Videos and animated
+GIF/WebP go through the same browser (exact seeks, no ffmpeg) and get a timeline strip,
+marks overlays and pacing checks. See README.md for user-facing docs.
 
 ## Layout
 
@@ -19,6 +20,12 @@ src/framesheet/
   compose.py    Pillow: diff stats, contact sheet, motion heatmap
   models.py     pydantic result models (InspectionResult, Finding, ...) + summary()
   cli.py        typer CLI: `framesheet inspect`, `framesheet install-browser`
+  media.py      container probing (mp4/mov, webm/mkv, gif, webp): codec, size, fps
+  video.py      video pipeline (core.inspect dispatches kind == "video" here): plan_times,
+                dense samples, frame_stats/sharpness, video findings, sheet + timeline
+  video.js      in-page video player (window.__framesheetVideo), SHARED like runtime.js
+  marks.py      marks loading, active-per-tile rules, pure overlay/timeline layout -> draw
+                ops (compose.draw_ops executes them; js/src/marks.ts must emit the same)
 tests/fixtures/ deliberately flawed SVG/HTML (one bug each) + pipeline.svg (clean);
                 used by BOTH test suites (Python and js/)
 docs/assets/    example images generated from the fixtures (used in README.md)
@@ -26,12 +33,17 @@ docs/contexter-skill.md  sketch: framesheet as an agent tool in contexter
 schema/
   report.schema.json  JSON Schema of report.json, generated from models.py
                       (`report_schema()`; finding codes are an enum from FINDING_CODES)
-  golden/*.json       Python reports for the fixtures (paths reduced to file names)
+  marks.schema.json   JSON Schema of marks.json, generated from models.Marks
+  golden/*.json       Python reports for the fixtures (paths reduced to file names);
+                      a fixture with <stem>.marks.json is inspected with those marks
+  golden/layout/marks_layout.json  draw ops of marks overlays/timelines for fixed inputs
 scripts/sync_schema.py  regenerates schema/ (`--golden` also the golden reports)
+scripts/video_fixtures.py  regenerates tests/fixtures/square.* with ffmpeg (committed)
 js/                 npm package `framesheet` (TypeScript port, see js/README.md)
   src/inspect.ts    pipeline (= core.py), inspect(), inspectPage(), prepare()
   src/driver.ts     time control on one page/frame (= render.py Session)
-  src/timing.ts, analysis.ts, checks.ts, sources.ts, models.ts  (= the .py modules)
+  src/timing.ts, analysis.ts, checks.ts, sources.ts, models.ts, media.ts, video.ts,
+  marks.ts          (= the .py modules)
   src/compose.ts    sheet/heatmap layout (= compose.py), drawn on a canvas in Chromium
   src/pixels.ts     pngjs decode, diff stats, motion map, heat colours
   src/pyfmt.ts      Python round()/format semantics (reports and messages match)
@@ -87,6 +99,39 @@ above; JS clocks only if `prepare(page)` installed the fake clock before `goto` 
 pauses on a 16 ms tick boundary, steps, and resumes afterwards; `prepare(page, { paused:
 true })` freezes time from navigation like the Python Session). `locator` calls the
 runtime's `scope(el)`, which limits timings/elements/canvas to that subtree.
+
+## Video inputs (video.py / video.ts)
+
+- Detection: extension (`media.VIDEO_EXTENSIONS`) or magic bytes. The bytes are served
+  with `context.route` from `https://framesheet.invalid` (a *secure* origin: WebCodecs
+  `ImageDecoder` needs one) with HTTP range support (`render._serve` / `video.ts serve`),
+  so seeking works; no file:// access, no fake clock (`Session(clock=False)`).
+- `video.js` `load()` returns duration/size (Infinity-duration WebM: seek to 1e101 first);
+  `seek(t)` sets `currentTime`, awaits `seeked` + `requestVideoFrameCallback` (2 s
+  timeout), draws into the full-viewport canvas, waits two rAFs; for gif/webp it decodes
+  the frame containing t with `ImageDecoder`. Change video.js in `src/framesheet/` only
+  (embedded into the npm build like runtime.js; `check:runtime` covers both).
+- Times: `plan_times` (frames / every / times / "marks"; all rounded to 4 decimals, last
+  tile = range end exactly) + `dense_times` (>= heat_frames, <= 0.25 s apart, <= 240). All
+  samples are visited in sorted order; only in-range samples feed `samples`, stats and the
+  heatmap (the heatmap accumulates incrementally: `compose.MotionAccumulator`).
+- Thresholds are constants in video.py (STATIC_RATIO 0.05%, UNIFORM_SHARE 99.5%, CUT_RATIO
+  40% / neighbours <= 1/4) and mirrored in video.ts/pixels.ts. New video checks go into
+  `video_findings` in both implementations (register the code in FINDING_CODES first).
+- Layout: overlays and the timeline are pure functions returning draw ops with integer
+  coordinates; text widths are *estimated* (`CHAR_W` x chars) so Python and TS lay out
+  identically (no font measuring). `js/test/video.test.ts` replays
+  `schema/golden/layout/marks_layout.json`. If you change marks.py, regenerate the goldens
+  and port the change to marks.ts in the same commit.
+- `contact_sheet(bands=..., overlay=..., footer=...)`: all default to off, so SVG/HTML sheets
+  stay byte-identical (check with the determinism tests and `git diff` on images).
+
+Regenerate the README video sample after visual changes:
+
+```bash
+uv run framesheet inspect tests/fixtures/square.webm --marks tests/fixtures/square.marks.json --out /tmp/fs-sq
+cp /tmp/fs-sq/sheet.png docs/assets/square_video_sheet.png
+```
 
 ## Duration detection (timing.py)
 
