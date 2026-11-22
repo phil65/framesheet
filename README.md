@@ -134,6 +134,23 @@ framesheet.inspect('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
 `loop`, `findings` and `console_errors`. It uses Playwright's sync API, so call it
 outside a running asyncio loop (or in a worker thread).
 
+## JavaScript / TypeScript (npm)
+
+The npm package [`framesheet`](js/README.md) (in [`js/`](js/)) is a TypeScript port with
+the same in-page runtime, report schema and image layout, for Node/Bun servers and
+Playwright e2e suites:
+
+```ts
+import { inspect, inspectPage } from "framesheet";
+import { expectAnimation } from "framesheet/test";
+
+const result = await inspect("banner.svg", { frames: 12 });  // PNG buffers + report
+await expectAnimation(page.locator("#mindmap"), "mindmap-open", { frames: 8 }); // visual regression
+```
+
+See [js/README.md](js/README.md) for `inspectPage` (components in a running app),
+`prepare` (fake clock for JS-driven motion) and server notes.
+
 ## The agent loop
 
 1. Run `framesheet inspect FILE --out DIR`.
@@ -174,6 +191,17 @@ Render checks (from geometry at every sampled frame): `parked-at-origin`,
 `outside-bounds`, `text-overflow` (SVG text vs. the rect under it; HTML text larger than
 its box), `svg-transform-box` (CSS transform animation pivoting around the SVG origin),
 `non-seamless-loop`, `js-driven-motion`, `console-error`.
+
+## Repository layout
+
+| Path | What |
+| --- | --- |
+| `src/framesheet/` | Python package (PyPI `framesheet`) |
+| `src/framesheet/runtime.js` | In-page time-control runtime, **shared**: the npm build embeds it byte for byte (CI checks) |
+| `js/` | npm package `framesheet` (TypeScript, Playwright peer dependency) |
+| `schema/report.schema.json` | JSON Schema of `report.json`, generated from the pydantic models; both implementations are tested against it |
+| `schema/golden/` | Python reports for the fixtures; the npm tests compare against them |
+| `tests/fixtures/` | Deliberately flawed SVG/HTML, used by both test suites |
 
 ## Limitations
 

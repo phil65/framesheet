@@ -19,16 +19,51 @@ src/framesheet/
   compose.py    Pillow: diff stats, contact sheet, motion heatmap
   models.py     pydantic result models (InspectionResult, Finding, ...) + summary()
   cli.py        typer CLI: `framesheet inspect`, `framesheet install-browser`
-tests/fixtures/ deliberately flawed SVG/HTML (one bug each) + pipeline.svg (clean)
+tests/fixtures/ deliberately flawed SVG/HTML (one bug each) + pipeline.svg (clean);
+                used by BOTH test suites (Python and js/)
 docs/assets/    example images generated from the fixtures (used in README.md)
+docs/contexter-skill.md  sketch: framesheet as an agent tool in contexter
+schema/
+  report.schema.json  JSON Schema of report.json, generated from models.py
+                      (`report_schema()`; finding codes are an enum from FINDING_CODES)
+  golden/*.json       Python reports for the fixtures (paths reduced to file names)
+scripts/sync_schema.py  regenerates schema/ (`--golden` also the golden reports)
+js/                 npm package `framesheet` (TypeScript port, see js/README.md)
+  src/inspect.ts    pipeline (= core.py), inspect(), inspectPage(), prepare()
+  src/driver.ts     time control on one page/frame (= render.py Session)
+  src/timing.ts, analysis.ts, checks.ts, sources.ts, models.ts  (= the .py modules)
+  src/compose.ts    sheet/heatmap layout (= compose.py), drawn on a canvas in Chromium
+  src/pixels.ts     pngjs decode, diff stats, motion map, heat colours
+  src/pyfmt.ts      Python round()/format semantics (reports and messages match)
+  src/test.ts       `framesheet/test`: expectAnimation() for @playwright/test
+  scripts/embed-assets.mjs  embeds ../src/framesheet/runtime.js + the font (build step)
+  test/             vitest (reuses ../tests/fixtures), e2e/ Playwright demo + baselines
 ```
+
+## Two implementations, one behaviour
+
+- `src/framesheet/runtime.js` is the single source of truth for in-page logic. Never
+  copy it into `js/`: `npm run build` embeds it (`js/src/generated/`, git-ignored) and
+  `npm run check:runtime` + `js/test/runtime.test.ts` fail if dist/ differs. Changes must
+  keep the Python behaviour (the Python suite runs against it; `scope()`/`resume()` are
+  used only by the npm `inspectPage`).
+- Everything else is ported 1:1 (same constants, thresholds, messages, rounding via
+  `js/src/pyfmt.ts`). The report must validate against `schema/report.schema.json`;
+  `js/test/parity.test.ts` compares each fixture with `schema/golden/` (tolerant for
+  pixel numbers locally, strict in CI where the goldens are regenerated on the runner).
+- Images: same layout and colours; Pillow's bundled Aileron font is embedded in the npm
+  package (`js/assets/Aileron-Regular.ttf`, CC0), text is placed with FreeType's
+  rounded-up ascender, so sheets look the same (pixels differ only in antialiasing).
+- After changing models.py or finding codes: `uv run python scripts/sync_schema.py
+  --golden` and commit `schema/`. `tests/test_schema.py` fails if the schema is stale or
+  a code is emitted that is not in `FINDING_CODES`.
 
 ## Time control (per animation type)
 
 A `Session` owns one page. Time only moves forward; `core.inspect` sorts all sample
 times and visits them in order.
 
-1. Before navigation: `page.clock.install()` + `pause_at()`. `Date`, `performance.now`,
+1. Before navigation: `page.clock.pause_at()` (installs the fake clock; no separate `install()`, whose real-time gap would leak into `performance.now()`). `Date`, `performance.now`,
    timers and `requestAnimationFrame` are fake and frozen.
 2. After `load`: evaluate `runtime.js`, wait for `document.fonts.ready` and images, run
    the fake clock for one frame (17 ms) so rAF content has painted, then `seek(0)`.
@@ -43,8 +78,15 @@ times and visits them in order.
 4. Chromium runs with `--disable-threaded-animation`: compositor-thread animations race
    with `pause()` and made the first frame nondeterministic. Keep it.
 
-Determinism (same input -> same PNG bytes) is tested in `test_deterministic_output`.
-If you touch render.py/runtime.js, run that test several times.
+Determinism (same input -> same PNG bytes) is tested in `test_deterministic_output`
+(declarative) and `test_deterministic_js_driven_output` (rAF canvas: the fake clock's tick
+origin must not drift). If you touch render.py/runtime.js, run them several times.
+
+npm `inspectPage` on a page you navigated yourself: SMIL/CSS/WAAPI seeking works as
+above; JS clocks only if `prepare(page)` installed the fake clock before `goto` (it then
+pauses on a 16 ms tick boundary, steps, and resumes afterwards; `prepare(page, { paused:
+true })` freezes time from navigation like the Python Session). `locator` calls the
+runtime's `scope(el)`, which limits timings/elements/canvas to that subtree.
 
 ## Duration detection (timing.py)
 
@@ -60,6 +102,10 @@ If you touch render.py/runtime.js, run that test several times.
 
 ## Adding a check
 
+Add it to **both** implementations and register the code first:
+
+- First add the code to `FINDING_CODES` in `models.py` (kebab-case, stable: it is API)
+  and run `uv run python scripts/sync_schema.py --golden` (the schema enum allows it).
 - Static (source text): add to `checks.py` (`check_svg_source` / `check_html_source` /
   `check_css`), return `Finding(check="static", ...)` via `_finding`. Test in
   `tests/test_checks.py` (no browser needed).
@@ -71,6 +117,13 @@ If you touch render.py/runtime.js, run that test several times.
   `describe()` in `runtime.js`.
 - Add a minimal fixture with exactly one bug under `tests/fixtures/` and assert the code
   in `tests/test_inspect.py`. Finding codes are kebab-case and stable (they are API).
+- npm port: static checks go into `js/src/checks.ts` (`checkSvgParsed` /
+  `checkHtmlParsed` / `checkCss`; parsing is DOMParser in the browser, the logic runs in
+  Node), render checks into `js/src/analysis.ts` (append to `CHECKS`, same `Geometry`
+  fields in camelCase: `geo.client`, `geo.user`, `geo.elements`, `geo.targets` are
+  `Map`s). Same message text. Add the fixture to `GOLDEN_FIXTURES` in
+  `scripts/sync_schema.py`, regenerate the goldens, and assert the code in
+  `js/test/inspect.test.ts`.
 
 ## Dev
 
@@ -80,6 +133,21 @@ uv run playwright install chromium     # once
 uv run pytest                          # real Chromium, ~1.5 min
 uv run ruff check . && uv run ruff format --check . && uv run ty check
 ```
+
+npm package (Node >= 22 for the tooling; the library itself runs on Node >= 20 and Bun):
+
+```bash
+cd js
+npm ci && npx playwright install chromium
+npm run build && npm run typecheck && npm test   # vitest, ~2 min
+npm run test:e2e                                 # Playwright demo of expectAnimation
+npm run test:e2e -- --update-snapshots           # re-record e2e baselines
+FRAMESHEET_GOLDEN_DIR=../schema/golden npm test  # strict parity (goldens from this machine)
+```
+
+CI: `.github/workflows/build.yml` (Python, template-managed) and
+`.github/workflows/js.yml` (npm: build, type check, runtime parity, vitest with strict
+parity against freshly generated Python reports, e2e, Node 20 + Bun smoke tests).
 
 Regenerate the README images after visual changes to compose.py:
 
