@@ -433,14 +433,17 @@ export async function inspectPage(page: Page, options: InspectPageOptions = {}):
   let paused = false;
   try {
     if (clockControlled && prepared !== "paused") {
-      // Pause on a 16 ms tick boundary a little in the future (the jump fires due timers
-      // once): fake rAF callbacks are aligned to ticks % 16, so this gives the same frame
-      // phase on every run. Date.now() - performance.now() is constant on the fake clock,
-      // so the target does not depend on how long this round trip takes.
-      const [date, perf] = (await page.evaluate("[Date.now(), performance.now()]")) as [number, number];
-      const ticks = Math.ceil((perf + 250) / 16) * 16;
-      await page.clock.pauseAt(date - perf + ticks);
+      // Pause a little in the future (the jump fires due timers once), then step to the
+      // next 16 ms tick boundary: fake rAF callbacks are aligned to ticks % 16, so this
+      // gives the same frame phase on every run. The phase is read only once time stands
+      // still: while the clock follows real time, Date.now() and performance.now() each
+      // sync to it, so reading both in one call can straddle a millisecond and put the
+      // boundary 1 ms off (seen under CPU load).
+      const date = (await page.evaluate("Date.now()")) as number;
+      await page.clock.pauseAt(date + 250);
       paused = true;
+      const perf = (await page.evaluate("performance.now()")) as number;
+      if (perf % 16) await page.clock.runFor(16 - (perf % 16));
     }
     if (options.trigger) await options.trigger();
     handle = locator
