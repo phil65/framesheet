@@ -1,6 +1,6 @@
 {
   "name": "framesheet",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Frame-accurate contact sheets, motion heatmaps and checks for animated SVG/HTML and running web apps, for humans and AI agents (Playwright)",
   "keywords": [
     "animation",
