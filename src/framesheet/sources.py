@@ -112,7 +112,7 @@ def fetch_text(url: str, timeout: float = 15.0) -> str | None:
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             return response.read().decode("utf-8", errors="replace")
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return None
 
 

@@ -99,7 +99,7 @@ def probe(data: bytes, container: str | None = None) -> Probe:
         elif kind == "webp":
             result.codec = "webp"
             _webp(data, result)
-    except (struct.error, IndexError, ValueError, UnicodeDecodeError):
+    except struct.error, IndexError, ValueError, UnicodeDecodeError:
         pass
     if result.fps is not None:
         result.fps = round(result.fps, 3)
