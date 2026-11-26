@@ -1,7 +1,5 @@
 """Duration detection and sampling (pure Python)."""
 
-from __future__ import annotations
-
 import pytest
 
 from framesheet.models import AnimationTiming

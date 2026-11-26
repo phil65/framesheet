@@ -1,7 +1,5 @@
 """Duration detection and sample-time planning."""
 
-from __future__ import annotations
-
 from functools import reduce
 import math
 from typing import Any

@@ -1,7 +1,5 @@
 """The :func:`inspect` pipeline: load, detect duration, sample, check, compose."""
 
-from __future__ import annotations
-
 import itertools
 import math
 from pathlib import Path

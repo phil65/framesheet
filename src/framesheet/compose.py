@@ -1,7 +1,5 @@
 """Image composition with Pillow: contact sheet, motion heatmap, pixel diffs."""
 
-from __future__ import annotations
-
 from functools import cache
 import itertools
 import math

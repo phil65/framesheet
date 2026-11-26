@@ -1,7 +1,5 @@
 """Video input: probing, marks, layout, planning, and real Chromium on the video fixtures."""
 
-from __future__ import annotations
-
 import json
 
 from PIL import Image

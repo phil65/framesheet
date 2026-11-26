@@ -5,8 +5,6 @@ black/blank frames, cuts, mark overlaps), compose the sheet with marks and a tim
 Ported 1:1 in ``js/src/video.ts``.
 """
 
-from __future__ import annotations
-
 from importlib.resources import files
 import math
 from pathlib import Path

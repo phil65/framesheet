@@ -9,8 +9,6 @@ square_h264.mp4 the same in H.264 (container probing; decodes only where Chromiu
 the codec). The files are committed: tests do not need ffmpeg.
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 import subprocess
 

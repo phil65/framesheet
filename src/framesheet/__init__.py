@@ -4,8 +4,6 @@ Frame-accurate contact sheets and motion maps for animated SVG and HTML, for hum
 and AI agents.
 """
 
-from __future__ import annotations
-
 from importlib.metadata import version
 
 __version__ = version("framesheet")

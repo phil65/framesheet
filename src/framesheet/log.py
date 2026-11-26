@@ -1,7 +1,5 @@
 """Logging configuration for framesheet."""
 
-from __future__ import annotations
-
 import logging
 
 

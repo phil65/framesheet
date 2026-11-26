@@ -11,8 +11,6 @@ Time is virtual. Three mechanisms are driven to the same target time ``t``:
   and ``currentTime`` is set to ``t`` (relative to when the animation first appeared).
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 import datetime as dt
 from importlib.resources import files

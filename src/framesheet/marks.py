@@ -8,8 +8,6 @@ coordinates and no font measuring (text widths are estimated from the character 
 so the npm port (``js/src/marks.ts``) produces exactly the same ops.
 """
 
-from __future__ import annotations
-
 import json
 import math
 from pathlib import Path

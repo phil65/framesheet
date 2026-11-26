@@ -4,8 +4,6 @@ Every check returns :class:`~framesheet.models.Finding` objects with ``check="st
 Render-time checks (geometry over time) live in :mod:`framesheet.analysis`.
 """
 
-from __future__ import annotations
-
 from collections import Counter
 from html.parser import HTMLParser
 import re

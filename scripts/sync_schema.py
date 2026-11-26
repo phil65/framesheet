@@ -10,8 +10,6 @@ names so they do not depend on the machine. ``layout/marks_layout.json`` holds t
 overlay/timeline draw ops for fixed inputs (the npm port must produce the same ops).
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 from pathlib import Path

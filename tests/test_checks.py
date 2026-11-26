@@ -1,7 +1,5 @@
 """Static checks (no browser needed)."""
 
-from __future__ import annotations
-
 from framesheet.checks import check_html_source, check_svg_source
 from tests.conftest import FIXTURES
 

@@ -1,7 +1,5 @@
 """End-to-end tests: real Chromium, deliberately flawed fixtures."""
 
-from __future__ import annotations
-
 import json
 
 from PIL import Image

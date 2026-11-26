@@ -5,8 +5,6 @@ is best effort: unknown fields are ``None`` and the browser's values win where b
 Ported 1:1 in ``js/src/media.ts``.
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 import struct
 
