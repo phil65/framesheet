@@ -48,7 +48,7 @@ jobs:
 
       # Fresh Python reports from this machine, so the parity test can compare strictly.
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
           cache-dependency-glob: pyproject.toml
